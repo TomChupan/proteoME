@@ -20,7 +20,7 @@ attachment::att_amend_desc()
 
 ## Add modules ----
 ## Create a module infrastructure in R/
-golem::add_module(name = "name_of_module1", with_test = TRUE) # Name of the module
+golem::add_module(name = "first_try", with_test = TRUE) # Name of the module
 golem::add_module(name = "name_of_module2", with_test = TRUE) # Name of the module
 
 ## Add helper functions ----
@@ -28,11 +28,34 @@ golem::add_module(name = "name_of_module2", with_test = TRUE) # Name of the modu
 golem::add_fct("helpers", with_test = TRUE)
 golem::add_utils("helpers", with_test = TRUE)
 
+#Is the app in dev-mode?
+# Setting the option to FALSE
+options( "golem.app.prod" = FALSE)
+# Function runs as expected
+golem::cat_dev("In dev\n")
+
+## Add packages
+## Recommended:
+#golem::use_recommended_deps()
+## Other packages:
+#usethis::use_package("pkg.you.want.to.add")
+usethis::use_package("shinydashboard")
+usethis::use_package("shinyalert")
+usethis::use_package("shinyWidgets")
+usethis::use_package("ggplot2")
+usethis::use_package("tools")
+usethis::use_package("vroom")
+usethis::use_package("Hmisc")
+## Check if you haven't missed anything:
+# This function will read all the scripts in the R/ folder and
+# try to guess required dependencies
+attachment::att_from_rscripts()
+
 ## External resources
 ## Creates .js and .css files at inst/app/www
-golem::add_js_file("script")
-golem::add_js_handler("handlers")
-golem::add_css_file("custom")
+golem::add_js_file("timer")
+golem::add_js_handler("handler0")
+golem::add_css_file("css0")
 golem::add_sass_file("custom")
 
 ## Add internal datasets ----
@@ -64,14 +87,11 @@ covrpage::covrpage()
 usethis::use_github()
 
 # GitHub Actions
-usethis::use_github_action()
+usethis::use_github_action(name = "check-standard")
 # Chose one of the three
 # See https://usethis.r-lib.org/reference/use_github_action.html
-usethis::use_github_action_check_release()
-usethis::use_github_action_check_standard()
-usethis::use_github_action_check_full()
-# Add action for PR
-usethis::use_github_action_pr_commands()
+
+
 
 # Travis CI
 usethis::use_travis()
