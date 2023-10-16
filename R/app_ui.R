@@ -9,11 +9,22 @@ app_ui <- function(request) {
     # Leave this function for adding external resources
     golem_add_external_resources(),
     # Your application UI logic
-    fluidPage(
-      h1("proteoME")
-    )
-  )
-}
+    dashboardPage(
+      dashboardHeader(title = h1("proteoME app")
+                      ),
+      dashboardSidebar(width = '22%'
+                       ),
+      dashboardBody(
+        tags$head(
+          tags$style(
+            HTML(".sidebar-toggle { display: none; }")
+          ) #I don't want to display the sidebar toggle
+        )
+
+      ) #dashboardBody close
+    ) #dashboardPage close
+  ) #tagList close
+} #app_ui close
 
 #' Add external Resources to the Application
 #'
