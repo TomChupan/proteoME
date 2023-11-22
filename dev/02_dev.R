@@ -21,7 +21,8 @@ attachment::att_amend_desc()
 ## Add modules ----
 ## Create a module infrastructure in R/
 golem::add_module(name = "first_try", with_test = TRUE) # Name of the module
-golem::add_module(name = "name_of_module2", with_test = TRUE) # Name of the module
+golem::add_module(name = "upload", with_test = TRUE)
+golem::add_module(name = "sidebar", with_test = TRUE)
 
 ## Add helper functions ----
 ## Creates fct_* and utils_*
@@ -34,7 +35,7 @@ options( "golem.app.prod" = FALSE)
 # Function runs as expected
 golem::cat_dev("In dev\n")
 
-## Add packages
+## Add packages ----
 ## Recommended:
 #golem::use_recommended_deps()
 ## Other packages:
@@ -51,6 +52,8 @@ usethis::use_package("Hmisc")
 # try to guess required dependencies
 attachment::att_from_rscripts()
 
+golem::document_and_reload() #updating NAMESPACE
+
 ## External resources
 ## Creates .js and .css files at inst/app/www
 golem::add_js_file("timer")
@@ -60,7 +63,9 @@ golem::add_sass_file("custom")
 
 ## Add internal datasets ----
 ## If you have data in your package
-usethis::use_data_raw(name = "my_dataset", open = FALSE)
+usethis::use_data_raw(name = "data_example", open = TRUE)
+usethis::use_data_raw(name = "ann_run_example", open = TRUE)
+usethis::use_data_raw(name = "ann_sample_example", open = TRUE)
 
 ## Tests ----
 ## Add one line by test you want to create
@@ -91,7 +96,8 @@ usethis::use_github_action(name = "check-standard")
 # Chose one of the three
 # See https://usethis.r-lib.org/reference/use_github_action.html
 
-
+#or you can check it by
+rcmdcheck::rcmdcheck()
 
 # Travis CI
 usethis::use_travis()
@@ -112,5 +118,11 @@ usethis::use_jenkins()
 usethis::use_gitlab_ci()
 
 # You're now set! ----
+
+#Check the app:
+library(devtools)
+load_all(getwd()) #when this project is active
+run_app()
+
 # go to dev/03_deploy.R
 rstudioapi::navigateToFile("dev/03_deploy.R")
