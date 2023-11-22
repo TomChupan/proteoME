@@ -11,7 +11,7 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     # Your application UI logic
     dashboardPage(
-      dashboardHeader(title = h1("proteoME app")
+      dashboardHeader(title = "proteoME app"
                       ),
       dashboardSidebar(width = '22%'
                        ),
