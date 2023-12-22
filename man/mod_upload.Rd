@@ -8,10 +8,10 @@
 mod_upload_ui(
   id,
   menuItem_label = c("Abundances", "Annotations (run)", "Annotations (sample)"),
-  fileInput_label
+  fileInput_label = "Your label."
 )
 
-mod_upload_server(id)
+mod_upload_server(id, data_type = c(1, 2, 3), r)
 }
 \arguments{
 \item{id, input, output, session}{Internal parameters for {shiny}.}
@@ -25,6 +25,16 @@ it can take one of the following values:
 }}
 
 \item{fileInput_label}{Character to be used as a fileInput label.}
+
+\item{data_type}{Number from 1 to 3 defining the type of the data
+as following:
+\itemize{
+ \item 1: "Abundances"
+ \item 2: "Annotations (run)"
+ \item 3: "Annotations (sample)"
+}}
+
+\item{r}{A "storage" for the variables used throughout the app}
 }
 \description{
 A shiny Module for data upload.

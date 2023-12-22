@@ -7,10 +7,12 @@
 \usage{
 mod_sidebar_ui(id)
 
-mod_sidebar_server(id)
+mod_sidebar_server(id, r)
 }
 \arguments{
 \item{id, input, output, session}{Internal parameters for {shiny}.}
+
+\item{r}{A "storage" for the variables used throughout the app}
 }
 \description{
 A shiny Module containing sidebar content
