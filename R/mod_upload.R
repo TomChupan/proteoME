@@ -16,60 +16,77 @@
 #' @rdname mod_upload
 #'
 #' @export
-#' @importFrom shiny NS tagList conditionalPanel fileInput actionButton checkboxGroupInput observeEvent
+#'
+#' @importFrom shiny NS tagList conditionalPanel fileInput actionButton checkboxGroupInput updateCheckboxGroupInput observeEvent observe actionLink
 #' @importFrom shinydashboard sidebarMenu menuItem
 #' @importFrom shinyalert shinyalert
 #' @importFrom tools file_ext
+#' @importFrom vroom vroom
+#' @importFrom shinyjs useShinyjs hidden hide show reset
 mod_upload_ui <- function(id,menuItem_label=c("Abundances","Annotations (run)",
-                          "Annotations (sample)"),fileInput_label){
+                          "Annotations (sample)"),fileInput_label="Your label."){
   ns <- NS(id)
   menuItem_label=match.arg(menuItem_label)
   tagList(
+    tags$head(
+      tags$style(
+        HTML(paste0("#",ns("help"),"{display: inline;
+                     margin: 0px;
+                     }"
+              ))
+                 )
+             ),
+    sidebarMenu(
+      useShinyjs(),
+      menuItem(menuItem_label,startExpanded = T,
 
-    conditionalPanel(condition = "input.tabs=='im'",
-                     tags$head(
-                       tags$style(
-                         HTML("#help {display: inline;
-                                       margin: 0px;
-                                      }"
-                         )
-                       )
-                     ),
-                     sidebarMenu(
-                       menuItem(menuItem_label,startExpanded = T,
-                                fileInput(ns("import"),
-                                          label=HTML(fileInput_label,
-                                                     as.character(actionLink(inputId = ns("help",
-                                                                             label = "",
-                                                                             icon = icon("circle-question")))
-                                          ),
-                                          placeholder = paste0("Max File Size: ",
-                                                               n," MB"),
-                                          accept = c(".csv",".txt"),multiple = F),
-                                actionButton(ns("use_example_data"),"Use example data"),
-                                if(menuItem_label=="Abundances"){
-                                checkboxGroupInput(ns("data_char"),"Uploaded data are:",
-                                                   choices = c("imputed","normalized"))
-                                },
-                                if(menuItem_label=="Annotations (sample)"){
-                                  actionButton(ns("new_levels"), "Adjust factor levels")
-                                }
+               fileInput(inputId=ns("import"),
+               label=HTML(fileInput_label,
+                          as.character(
+                            actionLink(inputId = ns("help"),
+                                                  label = "",
+                                                  icon = icon("circle-question")))
+                          ),
+               placeholder = paste0("Max File Size: 100 MB"),
+               accept = c(".csv",".txt"),multiple = F),
 
-                              ) #fileInput close
+               actionButton(inputId=ns("use_example_data"),label="Use example data"),
+               if(menuItem_label=="Abundances"){
+                 shinyjs::hidden(
+                   checkboxGroupInput(inputId=ns("data_char"),label="Uploaded data are:",
+                                      choices = c("imputed","normalized"))
+                   )
+               },
+               if(menuItem_label=="Annotations (sample)"){
+                 shinyjs::hidden(
+                   actionButton(inputId=ns("new_levels"),label="Adjust factor levels")
+                 )
+               },
+               shinyjs::hidden(actionButton(inputId = ns("reset"),label = "Reset data"))
 
-                      ) #menuItem close
-                    ) #sidebarMenu close
+             ) #menuItem close
 
-                ) #conditionalPanel close
+
+              ) #sidebarMenu close
+
   ) #tagList close
 } #mod_upload_ui close
 
 #' upload Server Functions
 #'
+#' @param r A "storage" for the variables used throughout the app
+#' @param data_type Number from 1 to 3 defining the type of the data
+#' as following:
+#' \itemize{
+#'  \item 1: "Abundances"
+#'  \item 2: "Annotations (run)"
+#'  \item 3: "Annotations (sample)"
+#' }
+#'
 #' @rdname mod_upload
 #' @export
 #'
-mod_upload_server <- function(id){
+mod_upload_server <- function(id,data_type=c(1,2,3),r){
   moduleServer(
     id,
     function(input, output, session){
@@ -77,10 +94,11 @@ mod_upload_server <- function(id){
 
     ###Helper----
 
-    observeEvent(input$help, {
-      shinyalert(text = "This type of data is supposed to look like this: picture? (html) table?",
-                 showConfirmButton = TRUE, type = "info")
-    })
+   # observeEvent(input$help, {
+   #  shinyalert(text = "This type of data is supposed to look like this: picture? (html) table?",
+   #             showConfirmButton = TRUE, type = "info")
+#
+   # })
 
 
     ###Data upload----
@@ -88,33 +106,72 @@ mod_upload_server <- function(id){
       file_ext(input$import$name)
     })
 
-    d = reactive({
-
-      if(input$use_example_data){
-        d_example
-      }else{
-        infile = input$import
-        if (is.null(infile)) {
-          return(NULL)
-        }
-
-        data=switch(format(),
-                    csv = vroom(input$import$datapath),
-                    txt = vroom(input$import$datapath),
-                    validate("Invalid file; Please upload a .csv or .txt file")
-        )
-        data
+    observeEvent(input$import,{
+      infile = input$import
+      if(is.null(infile)) {
+        return(NULL)
       }
 
+      if(!(format() %in% c("csv","txt"))){
+        shinyalert(title = "Invalid file format",
+                   text = "Please upload a .csv or .txt file.",
+                   type = "error")
+        return(NULL)
+      }
 
+      r[[paste0("d",data_type)]]=switch(format(),
+                                        csv = vroom(infile$datapath,show_col_types = F),
+                                        txt = vroom(infile$datapath,show_col_types = F)
+
+
+      )
+
+    }) #observeEvent close
+
+
+    observeEvent(input$use_example_data,{
+
+        r[[paste0("d",data_type)]]=switch(data_type,
+                                          data_example,
+                                          ann_run_example,
+                                          ann_sample_example)
+
+    }) #observeEvent close
+
+    observeEvent(input$reset,{
+      r[[paste0("d",data_type)]]=NULL
     })
 
+    observeEvent(c(input$use_example_data,input$import),{
+      req(!is.null(r[[paste0("d",data_type)]]))
+      shinyjs::show("reset")
+      switch(data_type,
+             {updateCheckboxGroupInput(session,"data_char",selected = NULL)
+              shinyjs::show("data_char")
+             },
+             NULL,
+             shinyjs::show("new_levels")
+      )
+      shinyjs::hide("import")
+      shinyjs::hide("use_example_data")
+    })
+
+    observeEvent(input$reset,{
+      shinyjs::hide("reset")
+      switch(data_type,
+             shinyjs::hide("data_char"),
+             NULL,
+             shinyjs::hide("new_levels")
+      )
+      shinyjs::show("import")
+      shinyjs::show("use_example_data")
+    })
 
   })
 }
 
 ## To be copied in the UI
-# mod_upload_ui("upload_1")
+#
 
 ## To be copied in the server
-# mod_upload_server("upload_1")
+#
