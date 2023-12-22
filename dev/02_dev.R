@@ -23,6 +23,8 @@ attachment::att_amend_desc()
 golem::add_module(name = "first_try", with_test = TRUE) # Name of the module
 golem::add_module(name = "upload", with_test = TRUE)
 golem::add_module(name = "sidebar", with_test = TRUE)
+golem::add_module(name = "body", with_test = TRUE)
+golem::add_module(name = "body_tab1", with_test = TRUE)
 
 ## Add helper functions ----
 ## Creates fct_* and utils_*
@@ -47,6 +49,8 @@ usethis::use_package("ggplot2")
 usethis::use_package("tools")
 usethis::use_package("vroom")
 usethis::use_package("Hmisc")
+usethis::use_package("DT")
+usethis::use_package("shinyjs")
 ## Check if you haven't missed anything:
 # This function will read all the scripts in the R/ folder and
 # try to guess required dependencies
