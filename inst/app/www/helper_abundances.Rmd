@@ -1,0 +1,9 @@
+---
+title: "Abundances"
+output: html_document
+---
+
+# Dataset requirements
+
+The dataset with abundances is supposed to look like this:
+
