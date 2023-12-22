@@ -6,13 +6,17 @@
 #' @format ## data_example
 #' A data frame with 18 rows and 7 columns:
 #' \describe{
+#' \itemize{
 #'  \item{Accession}{An UniProt accession number – a unique identifier assigned
 #'  to a protein entry in the UniProt Knowledgebase (UniProtKB).
 #'  See \url{https://www.uniprot.org/} }
 #'  \item{Abundances_F#}{Columns with protein abundances for each run
 #'  (several runs may come from one patient – repetitions)}
-#'  \subitem{Abundances can be raw, imputed or normalized (or both imputed and
-#'   normalized)}
+#'  \itemize{
+#'  \item Abundances can be raw, imputed or normalized (or both imputed and
+#'   normalized)
+#'   }
+#'  }
 #'
 #' }
 #' @source <https://raw.githubusercontent.com/TomChupan/data/main/data_example.csv>
