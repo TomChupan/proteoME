@@ -13,14 +13,17 @@ app_ui <- function(request) {
     dashboardPage(
       dashboardHeader(title = "proteoME app"
                       ),
-      dashboardSidebar(width = '22%'
+      dashboardSidebar(width = '22%',
+                       mod_sidebar_ui("sidebar_1")
                        ),
       dashboardBody(
         tags$head(
           tags$style(
             HTML(".sidebar-toggle { display: none; }")
-          ) #I don't want to display the sidebar toggle
-        )
+                    ) #I don't want to display the sidebar toggle
+                 ),
+
+        mod_body_ui("body_1")
 
       ) #dashboardBody close
     ) #dashboardPage close
