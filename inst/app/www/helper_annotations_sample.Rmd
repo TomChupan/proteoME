@@ -1,0 +1,37 @@
+---
+title: ""
+output: html_document
+---
+# Annotations (sample) – dataset requirements
+
+The dataset with sample annotations is supposed to look like this (bold columns are mandatory):
+
+<style>
+table {
+  width: 80%;
+}
+
+</style>
+
+|**sampleID** |**treatment** |sex |age |weight_kg |
+|:------------|:-------------|:---|:---|:---------|
+|A1           |A             |M   |  56|        95|
+|A2           |A             |F   |  21|        60|
+
+## Format specifications
+
+* Only .csv/.txt formats are allowed.
+* Separators: 
+    * .csv – comma (,)
+    * .txt – tab (`\t`)
+* Decimal point: dot (.)
+
+## Column specifications
+
+* First column: *sampleID* – column with **unique** sample IDs (one for each patient). It consists of a letter indicating a treatment group and a number indicating the patient number within the group. E.g. ID A2 stands for the second patient within a treatment group A.
+
+* Second column: *treatment* – column with a treatment group specification (default: only a letter). You can also edit the treatment levels by clicking on the 'Edit factor levels' button.
+
+* Other columns: optional columns with quantitative or qualitative features. You can edit factor levels by clicking on the 'Edit factor levels' button.
+
+<span style="font-size:1.5em;">**The form of the first two column names is mandatory!**</span>

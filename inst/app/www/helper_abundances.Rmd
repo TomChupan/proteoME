@@ -1,9 +1,44 @@
 ---
-title: "Abundances"
+title: ""
 output: html_document
 ---
-
-# Dataset requirements
+# Abundances - dataset requirements
 
 The dataset with abundances is supposed to look like this:
+
+<style>
+table {
+  width: 100%;
+}
+
+</style>
+
+| Accession | Abundances_F1 | Abundances_F2 | Abundances_F3 |
+|:----------|:--------------|:--------------|:--------------|
+|P04745     |      441466.04|      443635.72|             NA|
+|B7ZMD7     |             NA|             NA|       12566.05|
+|H6VRF8     |    13855145.99|    20437597.60|             NA|
+|P19961     |       43636.42|       26260.37|        3714.54|
+|P35527     |      290059.17|      459357.33|        1514.41|
+
+## Format specifications
+
+* Only .csv/.txt formats are allowed.
+* Separators: 
+    * .csv – comma (,)
+    * .txt – tab (`\t`)
+* Decimal point: dot (.)
+
+## Column specifications
+
+* First column: *Accession* – an UniProt accession number – a unique identifier assigned
+  to a protein entry in the UniProt Knowledgebase (UniProtKB).
+  See https://www.uniprot.org/
+  
+* Other columns: *Abundances_F#* – columns with protein abundances for each run
+  (several runs may come from one patient – repetitions). Each column name must contain
+  a unique number instead of '#'. Acceptable values in these columns are
+  numbers or *NA* indicating a missing value.
+  
+<span style="font-size:1.5em;">**The form of the above column names is mandatory!**</span>
 
