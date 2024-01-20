@@ -17,7 +17,7 @@
 #'
 #' @export
 #'
-#' @importFrom shiny NS tagList conditionalPanel fileInput actionButton checkboxGroupInput updateCheckboxGroupInput observeEvent observe actionLink
+#' @importFrom shiny NS tagList conditionalPanel fileInput actionButton checkboxGroupInput updateCheckboxGroupInput observeEvent observe actionLink showModal modalDialog includeMarkdown
 #' @importFrom shinydashboard sidebarMenu menuItem
 #' @importFrom shinyalert shinyalert
 #' @importFrom tools file_ext
@@ -59,7 +59,7 @@ mod_upload_ui <- function(id,menuItem_label=c("Abundances","Annotations (run)",
                },
                if(menuItem_label=="Annotations (sample)"){
                  shinyjs::hidden(
-                   actionButton(inputId=ns("new_levels"),label="Adjust factor levels")
+                   actionButton(inputId=ns("edit_factors"),label="Set factors/levels")
                  )
                },
                shinyjs::hidden(actionButton(inputId = ns("reset"),label = "Reset data"))
@@ -94,11 +94,20 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
 
     ###Helper----
 
-   # observeEvent(input$help, {
-   #  shinyalert(text = "This type of data is supposed to look like this: picture? (html) table?",
-   #             showConfirmButton = TRUE, type = "info")
-#
-   # })
+    observeEvent(input$help,{
+      showModal(
+        modalDialog(
+          switch(data_type,
+                 includeMarkdown("inst/app/www/helper_abundances.Rmd"),
+                 includeMarkdown("inst/app/www/helper_annotations_run.Rmd"),
+                 includeMarkdown("inst/app/www/helper_annotations_sample.Rmd")
+          ),
+          footer = modalButton("Close"),
+          size="m",
+          easyClose = T
+        )
+      )
+    })
 
 
     ###Data upload----
@@ -146,11 +155,9 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
       req(!is.null(r[[paste0("d",data_type)]]))
       shinyjs::show("reset")
       switch(data_type,
-             {updateCheckboxGroupInput(session,"data_char",selected = NULL)
-              shinyjs::show("data_char")
-             },
+             shinyjs::show("data_char"),
              NULL,
-             shinyjs::show("new_levels")
+             shinyjs::show("edit_factors")
       )
       shinyjs::hide("import")
       shinyjs::hide("use_example_data")
@@ -159,16 +166,30 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
     observeEvent(input$reset,{
       shinyjs::hide("reset")
       switch(data_type,
-             shinyjs::hide("data_char"),
+             {updateCheckboxGroupInput(session,inputId="data_char",selected = character(0))
+             shinyjs::hide("data_char")
+             },
              NULL,
-             shinyjs::hide("new_levels")
+             shinyjs::hide("edit_factors")
       )
+      shinyjs::reset("import") #just to reset the fileInput progress bar and previous file name
       shinyjs::show("import")
       shinyjs::show("use_example_data")
     })
 
-  })
-}
+
+    ###Edit factor vars/levels/colors----
+    observeEvent(input$edit_factors,{
+      r$edit_factors_button=ifelse(is.null(r$edit_factors_button),1,r$edit_factors_button+1)
+    })
+
+
+      mod_factors_server("factors_1",r=r)
+
+
+
+  }) #moduleServer close
+} #server close
 
 ## To be copied in the UI
 #
