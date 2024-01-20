@@ -21,14 +21,14 @@
 #'
 #' @importFrom shiny NS tagList fluidRow tableOutput validate need
 #' @importFrom shinydashboard box
-#' @importFrom DT dataTableOutput datatable renderDataTable
+#' @importFrom DT DTOutput datatable renderDT
 mod_body_tab1_ui <- function(id,box_title="Your title.",data_type=c(1,2,3)){
   ns <- NS(id)
   tagList(
 
         box(
           width=switch(data_type,12,4,8),height = '30%',title = box_title,status="primary", #just for CSS
-          DT::dataTableOutput(ns("tab"))
+          DTOutput(ns("tab"))
         ) #box close
 
 
@@ -63,7 +63,7 @@ mod_body_tab1_server <- function(id,
              r$d3)
     })
 
-    output$tab=renderDataTable({
+    output$tab=renderDT({
       validate(need(!is.null(dTOtab()), validate_message))
       datatable(dTOtab(), rownames=F,selection="none",
                 options = list(searching = F,
