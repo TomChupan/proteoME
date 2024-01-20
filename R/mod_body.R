@@ -15,6 +15,7 @@
 #'
 #' @export
 #' @importFrom shiny NS tagList tabsetPanel tabPanel fluidPage
+#' @importFrom utils str
 mod_body_ui <- function(id){
   ns <- NS(id)
   tagList(
