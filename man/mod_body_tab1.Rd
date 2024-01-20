@@ -5,7 +5,7 @@
 \alias{mod_body_tab1_server}
 \title{mod_body_tab1_ui and mod_body_tab1_server}
 \usage{
-mod_body_tab1_ui(id, box_title = "Your title.")
+mod_body_tab1_ui(id, box_title = "Your title.", data_type = c(1, 2, 3))
 
 mod_body_tab1_server(
   id,
@@ -20,8 +20,6 @@ mod_body_tab1_server(
 \item{box_title}{Character to be used as a box title (there is one of the 3
 possible tables in that box).}
 
-\item{validate_message}{Message to be displayed when there are no data to build a table.}
-
 \item{data_type}{Number from 1 to 3 defining the type of the data
 as following:
 \itemize{
@@ -29,6 +27,8 @@ as following:
  \item 2: "Annotations (run)"
  \item 3: "Annotations (sample)"
 }}
+
+\item{validate_message}{Message to be displayed when there are no data to build a table.}
 
 \item{r}{A "storage" for the variables used throughout the app}
 }
