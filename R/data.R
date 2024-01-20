@@ -57,7 +57,7 @@
 #'  a letter indicating a treatment group and a number indicating the patient
 #'  number within the group. E.g. ID A2 stands for the second patient within a
 #'  treatment group A.}
-#'  \item{treatment}{A column with a treatment group specification (here only
+#'  \item{treatment}{A column with a treatment group specification (default: only
 #'  a letter).}
 #'  \item{sex}{Male (M) or female (F).}
 #'  \item{age}{Age in years.}
