@@ -23,6 +23,3 @@ The body of the app is divided into __ tabs:
 run annotations, sample annotations) and their basic specification}
 }
 }
-\details{
-body UI Function
-}

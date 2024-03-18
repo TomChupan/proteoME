@@ -17,6 +17,3 @@ mod_factors_server(id, r)
 \description{
 A shiny Module for setting factor variables and editing factor levels
 }
-\details{
-factors UI Function
-}

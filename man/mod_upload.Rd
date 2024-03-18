@@ -39,6 +39,3 @@ as following:
 \description{
 A shiny Module for data upload.
 }
-\details{
-upload UI Function
-}

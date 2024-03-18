@@ -17,6 +17,3 @@ mod_sidebar_server(id, r)
 \description{
 A shiny Module containing sidebar content
 }
-\details{
-sidebar UI Function
-}
