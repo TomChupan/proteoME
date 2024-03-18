@@ -1,5 +1,5 @@
-#' factors UI Function
-#'
+# factors UI Function
+
 #' @title mod_factors_ui and mod_factors_server
 #' @description A shiny Module for setting factor variables and editing factor levels
 #'
@@ -22,8 +22,8 @@ mod_factors_ui <- function(id){
   ) #tagList close
 } #mod_factors_ui close
 
-#' factors Server Functions
-#'
+# factors Server Functions
+
 #' @param r A "storage" for the variables used throughout the app
 #'
 #' @rdname mod_factors
@@ -38,17 +38,22 @@ observeEvent(r$edit_factors_button, {
       modalDialog(
         title = "Set factor variables, their levels and order (1 = reference)",
         size="l",
-        easyClose = T,
+        easyClose = F,
         footer = tagList(
-          actionButton(ns("apply_changes"), "Apply Changes"),
-          modalButton("Close without changes")
+          column(1,actionButton(ns("help"),"Guide")),
+          column(6),
+          column(2,actionButton(ns("apply_changes"), "Apply Changes")),
+          column(2,actionButton(ns("close"), "Close without changes"))
         ),
         fluidPage(
           fluidRow(
-            selectInput(ns("factor_cols"), "Factor Columns", choices = names(r$d3), multiple = TRUE)
+            selectInput(ns("factor_cols"), "Factor Columns", choices = names(r$d3)[-1], multiple = TRUE)
           ),#fluidRow close
           fluidRow(
-          DTOutput(ns("factor_levels_table"))
+            DTOutput(ns("factor_levels_table"))
+          ), #fluidRow close
+          fluidRow(
+            uiOutput(ns("guide"))
           ) #fluidRow close
         ) #fluidPage close
       ) #modalDialog close
@@ -57,7 +62,7 @@ observeEvent(r$edit_factors_button, {
 })
 
     observe({
-      req(!is.null(r$d3))
+      req(not_null(r$d3))
       r$edit_table=data.frame(
         Variable = rep(input$factor_cols,lapply(lapply(r$d3[input$factor_cols],unique),length)),
         Original_Levels = c(unlist(lapply(r$d3[input$factor_cols],function(column){
@@ -124,6 +129,21 @@ observeEvent(r$edit_factors_button, {
 
       removeModal()
       })
+
+    observeEvent(input$help,{
+      output$guide=renderUI(includeMarkdown("inst/app/www/helper_factors.Rmd"))
+    })
+
+    observeEvent(input$apply_changes,{
+      req(length(input$factor_cols) > 0)
+      output$guide=NULL
+    })
+
+    observeEvent(input$close,{
+      output$guide=NULL
+      removeModal()
+    })
+
 
 
 
