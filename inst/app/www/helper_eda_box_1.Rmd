@@ -1,0 +1,31 @@
+---
+title: ""
+output: html_document
+---
+# Boxplot of abundances by runs
+
+Each boxplot is calculated based on abundance values within **one run**.
+
+You can choose one of the below form of abundances according to your needs:
+* just the values (those shown in the table on the previous tab)
+* log-transformed values (log2 is used)
+* log2(x+1) (to deal with zeros)
+* square root or the original values
+
+**Remember:** after data transformation (see the next tab) use only the "just the values" option (means the current version of the dataset) to avoid e.g. double logarithming.
+
+Boxplots are distinguished by color based on treatment group of the specific run. Their width varies depending on the number of detected proteins.
+
+### Interactive infobox
+
+When you hover the mouse cursor over a particular boxplot, an info box appears with some information about that run (in this order):
+* runID
+* number of detected proteins within that run
+* upper quartile of abundances
+* median abundance
+* lower quartile of abundances
+* number of proteins that were not detected (out of all proteins detected in the data set)
+* percentage of detected proteins (detected/(detected + not detected))
+    * subtract this number from 100% to get the missing value rate
+
+![Visualization example](helper_eda_box_1.png){width=100%}
