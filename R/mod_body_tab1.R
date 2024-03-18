@@ -20,16 +20,23 @@
 #' @export
 #'
 #' @importFrom shiny NS tagList fluidRow tableOutput validate need
-#' @importFrom shinydashboard box
-#' @importFrom DT DTOutput datatable renderDT
+#' @importFrom shinydashboard box valueBox valueBoxOutput renderValueBox
+#' @importFrom DT DTOutput datatable renderDT formatRound
 mod_body_tab1_ui <- function(id,box_title="Your title.",data_type=c(1,2,3)){
   ns <- NS(id)
   tagList(
 
         box(
-          width=switch(data_type,12,4,8),height = '30%',title = box_title,status="primary", #just for CSS
-          DTOutput(ns("tab"))
-        ) #box close
+          width=switch(data_type,8,6,6),height = '30%',title = box_title,status="primary", #just for CSS
+           DTOutput(ns("tab")),br()
+        ), #box close
+        if(data_type==1){
+          column(4,
+          valueBoxOutput(ns("n_proteins"),width=12),
+          valueBoxOutput(ns("n_runs"),width = 12),
+          valueBoxOutput(ns("n_samples"),width = 12)
+          ) #column close
+          } #if close
 
 
   ) #tagList close
@@ -64,7 +71,7 @@ mod_body_tab1_server <- function(id,
     })
 
     output$tab=renderDT({
-      validate(need(!is.null(dTOtab()), validate_message))
+      validate(need(not_null(dTOtab()), validate_message))
       datatable(dTOtab(), rownames=F,selection="none",
                 options = list(searching = F,
                                pageLength = 6,
@@ -72,8 +79,39 @@ mod_body_tab1_server <- function(id,
                                scrollX = T,
                                autoWidth = F
                               )
-                ) #datatable close
+                ) %>%
+        DT::formatRound(columns = which(sapply(r[[paste0("d",data_type)]],
+                                               is.numeric)),
+                        digits = ifelse(data_type==1,2,0))
+
     }) #renderDataTable close
+
+    output$n_proteins=renderValueBox({
+      if(is.null(r$d1)){
+        valueBox("No file loaded","Total number of proteins (rows)",icon=icon("list"))
+      }else{
+        valueBox(nrow(r$d1),"Total number of proteins (rows)",icon=icon("list"),color="green")
+      }
+
+    }) #renderValueBox close
+
+    output$n_runs=renderValueBox({
+      if(is.null(r$d1)){
+        valueBox("No file loaded","Number of runs (columns)",icon=icon("people-arrows"))
+      }else{
+        valueBox(ncol(r$d1)-1,"Number of runs (columns)",icon=icon("people-arrows"),color="green")
+      }
+
+    }) #renderValueBox close
+
+    output$n_samples=renderValueBox({
+      if(is.null(r$d2)){
+        valueBox("No file loaded","Number of samples",icon=icon("person"))
+      }else{
+        valueBox(nrow(as.data.frame(unique(r$d2[,2]))),"Number of samples",icon=icon("person"),color="green")
+      }
+
+    }) #renderValueBox close
 
   }) #moduleServer close
 }
