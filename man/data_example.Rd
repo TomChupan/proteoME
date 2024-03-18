@@ -5,15 +5,14 @@
 \alias{data_example}
 \title{Example data with protein abundances}
 \format{
-## data_example
-A data frame with 18 rows and 7 columns:
+A data frame with 2018 rows and 101 columns:
 \describe{
 \itemize{
- \item{Accession}{An UniProt accession number – a unique identifier assigned
+ \item{Accession: }{An UniProt accession number – a unique identifier assigned
  to a protein entry in the UniProt Knowledgebase (UniProtKB).
  See \url{https://www.uniprot.org/} }
- \item{Abundances_F#}{Columns with protein abundances for each run
- (several runs may come from one patient – repetitions)}
+ \item{F#: }{Columns with protein abundances for each run
+ (several runs may come from one patient – replicates)}
  \itemize{
  \item Abundances can be raw, imputed or normalized (or both imputed and
   normalized)
@@ -23,7 +22,7 @@ A data frame with 18 rows and 7 columns:
 }
 }
 \source{
-<https://raw.githubusercontent.com/TomChupan/data/main/data_example.csv>
+<https://raw.githubusercontent.com/TomChupan/data/main/data_example3.csv>
 }
 \usage{
 data_example

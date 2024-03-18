@@ -5,8 +5,7 @@
 \alias{ann_run_example}
 \title{Example data with run annotations}
 \format{
-## ann_run_example
-A data frame with 6 rows and 3 columns:
+A data frame with 100 rows and 6 columns:
 \describe{
  \item{runID}{A column with run IDs in a form of F# (where # is a number). Each ID
  has to be unique.}
@@ -14,13 +13,16 @@ A data frame with 6 rows and 3 columns:
  a letter indicating a treatment group and a number indicating the patient
  number within the group. E.g. ID A2 stands for the second patient within a
  treatment group A. The same sample ID can be assigned to several run IDs.}
- \item{rep}{A column with repetition number. E.g. Run F4 is the second
- repetition for a patient A2.}
+ \item{rep}{A column with replicate number. E.g. Run F4 is the second
+ replicate for a patient A2.}
+ \item{batchNo}{Batch number.}
+ \item{batchOrder}{Order of the run within the batch.}
+ \item{dateTime}{Date and time of the measurement in a \%m/\%d/\%Y \%R format.}
 
 }
 }
 \source{
-<https://raw.githubusercontent.com/TomChupan/data/main/data_example_run.csv>
+<https://raw.githubusercontent.com/TomChupan/data/main/data_example_run3.csv>
 }
 \usage{
 ann_run_example

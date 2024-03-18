@@ -5,24 +5,22 @@
 \alias{ann_sample_example}
 \title{Example data with sample annotations}
 \format{
-## ann_sample_example
-A data frame with 3 rows and 5 columns:
+A data frame with 50 rows and 5 columns:
 \describe{
- \item{sampleID}{A column with **unique** sample IDs (one for each patient). It consists of
+ \item{sampleID: }{A column with **unique** sample IDs (one for each patient). It consists of
  a letter indicating a treatment group and a number indicating the patient
  number within the group. E.g. ID A2 stands for the second patient within a
  treatment group A.}
- \item{treatment}{A column with a treatment group specification (default: only
- a letter).}
- \item{sex}{Male (M) or female (F).}
- \item{age}{Age in years.}
- \item{weight_kg}{Weight in kg.}
+ \item{treatment: }{A column with a treatment group specification.}
+ \item{sex: }{Male (M) or female (F).}
+ \item{age: }{Age in years.}
+ \item{weight_kg: }{Weight in kg.}
 
 
 }
 }
 \source{
-<https://raw.githubusercontent.com/TomChupan/data/main/data_example_sample.csv>
+<https://raw.githubusercontent.com/TomChupan/data/main/data_example_sample2.csv>
 }
 \usage{
 ann_sample_example

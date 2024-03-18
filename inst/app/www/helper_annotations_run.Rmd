@@ -28,6 +28,8 @@ table {
     * .txt – tab (`\t`)
 * Decimal point: dot (.)
 
+**Warning: The file must not contain row names!**
+
 ## Column specifications
 
 * First column: *runID* – column with unique IDs for each run in a form of F# (where # is a number). It must consist of the same 'F#' from the column names of abundances dataset – see the help above.
@@ -36,6 +38,8 @@ table {
 number within the group. E.g. ID A2 stands for the second patient within a
 treatment group A. The same sample ID can be assigned to several run IDs.
 
-* Third column: *rep* – column with repetition number. E.g. Run F4 is the second repetition for a patient A2.
+* Third column: *rep* – column with replicate number. E.g. Run F4 is the second replicate for a patient A2.
+
+* Optional columns: a user can also provide columns with a batch number, the order of a replicate within the batch and date-time column.
 
 <span style="font-size:1.5em;">**The form of the above column names is mandatory!**</span>

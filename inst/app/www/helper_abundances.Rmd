@@ -13,7 +13,7 @@ table {
 
 </style>
 
-| Accession | Abundances_F1 | Abundances_F2 | Abundances_F3 |
+| Accession | F1 | F2 | F3 |
 |:----------|:--------------|:--------------|:--------------|
 |P04745     |      441466.04|      443635.72|             NA|
 |B7ZMD7     |             NA|             NA|       12566.05|
@@ -29,14 +29,16 @@ table {
     * .txt – tab (`\t`)
 * Decimal point: dot (.)
 
+**Warning: The file must not contain row names!**
+
 ## Column specifications
 
 * First column: *Accession* – an UniProt accession number – a unique identifier assigned
   to a protein entry in the UniProt Knowledgebase (UniProtKB).
   See https://www.uniprot.org/
   
-* Other columns: *Abundances_F#* – columns with protein abundances for each run
-  (several runs may come from one patient – repetitions). Each column name must contain
+* Other columns: *F#* – columns with protein abundances for each run
+  (several runs may come from one patient – replicates). Each column name must contain
   a unique number instead of '#'. Acceptable values in these columns are
   numbers or *NA* indicating a missing value.
   

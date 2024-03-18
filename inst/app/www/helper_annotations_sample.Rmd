@@ -26,6 +26,8 @@ table {
     * .txt – tab (`\t`)
 * Decimal point: dot (.)
 
+**Warning: The file must not contain row names!**
+
 ## Column specifications
 
 * First column: *sampleID* – column with **unique** sample IDs (one for each patient). It consists of a letter indicating a treatment group and a number indicating the patient number within the group. E.g. ID A2 stands for the second patient within a treatment group A.
