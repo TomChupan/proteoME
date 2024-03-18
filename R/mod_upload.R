@@ -1,5 +1,5 @@
-#' upload UI Function
-#'
+# upload UI Function
+
 #' @title mod_upload_ui and mod_upload_server
 #' @description A shiny Module for data upload.
 #'
@@ -22,7 +22,8 @@
 #' @importFrom shinyalert shinyalert
 #' @importFrom tools file_ext
 #' @importFrom vroom vroom
-#' @importFrom shinyjs useShinyjs hidden hide show reset
+#' @importFrom shinyjs hidden hide show reset
+#' @importFrom tidyr pivot_longer
 mod_upload_ui <- function(id,menuItem_label=c("Abundances","Annotations (run)",
                           "Annotations (sample)"),fileInput_label="Your label."){
   ns <- NS(id)
@@ -37,7 +38,6 @@ mod_upload_ui <- function(id,menuItem_label=c("Abundances","Annotations (run)",
                  )
              ),
     sidebarMenu(
-      useShinyjs(),
       menuItem(menuItem_label,startExpanded = T,
 
                fileInput(inputId=ns("import"),
@@ -54,7 +54,7 @@ mod_upload_ui <- function(id,menuItem_label=c("Abundances","Annotations (run)",
                if(menuItem_label=="Abundances"){
                  shinyjs::hidden(
                    checkboxGroupInput(inputId=ns("data_char"),label="Uploaded data are:",
-                                      choices = c("imputed","normalized"))
+                                      choices = c("normalized","imputed"))
                    )
                },
                if(menuItem_label=="Annotations (sample)"){
@@ -62,6 +62,9 @@ mod_upload_ui <- function(id,menuItem_label=c("Abundances","Annotations (run)",
                    actionButton(inputId=ns("edit_factors"),label="Set factors/levels")
                  )
                },
+               shinyjs::hidden(downloadButton(ns("download"), "Download (.csv)",
+                               style = "background-color: #337ab7; color: #fff")
+               ),
                shinyjs::hidden(actionButton(inputId = ns("reset"),label = "Reset data"))
 
              ) #menuItem close
@@ -72,8 +75,8 @@ mod_upload_ui <- function(id,menuItem_label=c("Abundances","Annotations (run)",
   ) #tagList close
 } #mod_upload_ui close
 
-#' upload Server Functions
-#'
+# upload Server Functions
+
 #' @param r A "storage" for the variables used throughout the app
 #' @param data_type Number from 1 to 3 defining the type of the data
 #' as following:
@@ -98,9 +101,9 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
       showModal(
         modalDialog(
           switch(data_type,
-                 includeMarkdown("inst/app/www/helper_abundances.Rmd"),
-                 includeMarkdown("inst/app/www/helper_annotations_run.Rmd"),
-                 includeMarkdown("inst/app/www/helper_annotations_sample.Rmd")
+                 includeMarkdown(app_sys("app/www/helper_abundances.Rmd")),
+                 includeMarkdown(app_sys("app/www/helper_annotations_run.Rmd")),
+                 includeMarkdown(app_sys("app/www/helper_annotations_sample.Rmd"))
           ),
           footer = modalButton("Close"),
           size="m",
@@ -129,8 +132,10 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
       }
 
       r[[paste0("d",data_type)]]=switch(format(),
-                                        csv = vroom(infile$datapath,show_col_types = F),
-                                        txt = vroom(infile$datapath,show_col_types = F)
+                                        csv = vroom(infile$datapath,show_col_types = F,
+                                                    guess_max = Inf),
+                                        txt = vroom(infile$datapath,show_col_types = F,
+                                                    guess_max = Inf)
 
 
       )
@@ -147,12 +152,25 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
 
     }) #observeEvent close
 
+    observe({
+      req(not_null(r$d1)&not_null(r$d2)&not_null(r$d3))
+      d=r$d1 %>%
+        tidyr::pivot_longer(!Accession,names_to = "runID",values_to = "abundances")
+      d=merge(d,r$d2[,c(1:2)],by="runID")
+      d=merge(d,r$d3[,c(1:2)],by="sampleID")
+      r$d_pivotlonger=d
+    })
+
     observeEvent(input$reset,{
       r[[paste0("d",data_type)]]=NULL
+      r$eda_box_1=NULL
+      r$eda_hist_1=NULL
+      r$d_pivotlonger=NULL
+      if(data_type==1){r$transformedTF=FALSE}
     })
 
     observeEvent(c(input$use_example_data,input$import),{
-      req(!is.null(r[[paste0("d",data_type)]]))
+      shinyjs::show("download")
       shinyjs::show("reset")
       switch(data_type,
              shinyjs::show("data_char"),
@@ -161,13 +179,15 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
       )
       shinyjs::hide("import")
       shinyjs::hide("use_example_data")
-    })
+    },ignoreInit = T)
 
     observeEvent(input$reset,{
+      shinyjs::hide("download")
       shinyjs::hide("reset")
       switch(data_type,
              {updateCheckboxGroupInput(session,inputId="data_char",selected = character(0))
              shinyjs::hide("data_char")
+             r$data_char=NULL
              },
              NULL,
              shinyjs::hide("edit_factors")
@@ -175,6 +195,11 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
       shinyjs::reset("import") #just to reset the fileInput progress bar and previous file name
       shinyjs::show("import")
       shinyjs::show("use_example_data")
+    })
+
+    ###Data characteristics - checkbox
+    observe({
+      r$data_char=input$data_char
     })
 
 
@@ -185,6 +210,17 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
 
 
       mod_factors_server("factors_1",r=r)
+
+    ###Download button----
+      output$download <- downloadHandler(
+        filename = function() {
+          paste0("d",data_type,".csv")
+        },
+        content = function(file) {
+          write.csv(r[[paste0("d",data_type)]], file)
+        }
+      )
+
 
 
 
