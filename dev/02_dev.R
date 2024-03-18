@@ -26,10 +26,14 @@ golem::add_module(name = "sidebar", with_test = TRUE)
 golem::add_module(name = "body", with_test = TRUE)
 golem::add_module(name = "body_tab1", with_test = TRUE)
 golem::add_module(name = "factors", with_test = TRUE)
+golem::add_module(name="plot",with_test = TRUE)
+golem::add_module(name = "transform", with_test = FALSE)
+golem::add_module(name = "body_sumtab", with_test = FALSE)
+
 
 ## Add helper functions ----
 ## Creates fct_* and utils_*
-golem::add_fct("helpers", with_test = TRUE)
+golem::add_fct("summary", with_test = FALSE)
 golem::add_utils("helpers", with_test = TRUE)
 
 #Is the app in dev-mode?
@@ -54,12 +58,12 @@ usethis::use_package("DT")
 usethis::use_package("shinyjs")
 usethis::use_package("magrittr")
 usethis::use_package("dplyr")
+usethis::use_package("data.table")
+
 ## Check if you haven't missed anything:
 # This function will read all the scripts in the R/ folder and
 # try to guess required dependencies
 attachment::att_from_rscripts()
-
-golem::document_and_reload() #updating NAMESPACE
 
 ## External resources
 ## Creates .js and .css files at inst/app/www
@@ -83,6 +87,8 @@ usethis::use_test("app")
 ## Vignette ----
 usethis::use_vignette("proteoME")
 devtools::build_vignettes()
+
+utils::browseVignettes("proteoME") #check created Vignettes
 
 ## Code Coverage----
 ## Set the code coverage service ("codecov" or "coveralls")
@@ -124,12 +130,20 @@ usethis::use_jenkins()
 # GitLab CI
 usethis::use_gitlab_ci()
 
-# You're now set! ----
+# Checkers ----
 
-#Check the app:
-library(devtools)
-load_all(getwd()) #when this project is active
-run_app()
+#Check the complexity
+
+#remotes::install_github("hrbrmstr/cloc")
+library(cloc)
+cloc_git("https://github.com/TomChupan/proteoME")
+
+#install.packages("cyclocomp")
+library(cyclocomp)
+cyclocomp_package_dir(getwd())
+
+
+# You're now set! ----
 
 # go to dev/03_deploy.R
 rstudioapi::navigateToFile("dev/03_deploy.R")
