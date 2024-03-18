@@ -4,6 +4,10 @@
 #'     DO NOT REMOVE.
 #' @import shiny
 #' @import shinydashboard
+#' @import markdown
+#' @importFrom shinybusy add_busy_spinner
+#' @importFrom shinyjs useShinyjs
+#' @importFrom shinyWidgets useSweetAlert
 #' @noRd
 app_ui <- function(request) {
   tagList(
@@ -13,7 +17,7 @@ app_ui <- function(request) {
     dashboardPage(
       dashboardHeader(title = "proteoME app"
                       ),
-      dashboardSidebar(width = '22%',
+      dashboardSidebar(width = '25%',
                        mod_sidebar_ui("sidebar_1")
                        ),
       dashboardBody(
@@ -22,7 +26,7 @@ app_ui <- function(request) {
             HTML(".sidebar-toggle { display: none; }")
                     ) #I don't want to display the sidebar toggle
                  ),
-
+        add_busy_spinner(spin = "fading-circle"),
         mod_body_ui("body_1")
 
       ) #dashboardBody close
@@ -49,8 +53,10 @@ golem_add_external_resources <- function() {
     bundle_resources(
       path = app_sys("app/www"),
       app_title = "proteoME"
-    )
+    ),
     # Add here other external resources
     # for example, you can add shinyalert::useShinyalert()
+    useShinyjs(),
+    useSweetAlert()
   )
 }
