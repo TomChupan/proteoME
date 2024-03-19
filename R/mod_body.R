@@ -55,7 +55,8 @@ mod_body_ui <- function(id){
                 tabPanel("Transformation",value = "trans",
                          fluidPage(
                            fluidRow(
-                             mod_body_sumtab_ui(ns("body_sumtab_1"))
+                             mod_body_sumtab_ui(ns("body_sumtab_1"),
+                                                box_title = "Summary statistics")
                            ) #fluidRow close
                          ) #fluidPage close
                 ), #tabPanel Transformation close
@@ -111,7 +112,6 @@ mod_body_server <- function(id,r){
 
     #####Tab 3 ----
     mod_body_sumtab_server("body_sumtab_1",
-                           box_title = "Summary statistics",
                            validate_message="Please upload all files.",
                            r=r)
 

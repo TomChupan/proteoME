@@ -5,9 +5,9 @@
 \alias{mod_body_sumtab_server}
 \title{mod_body_sumtab_ui and mod_body_sumtab_server}
 \usage{
-mod_body_sumtab_ui(id)
+mod_body_sumtab_ui(id, box_title = "Your title.")
 
-mod_body_sumtab_server(id, box_title = "Your title.", validate_message, r)
+mod_body_sumtab_server(id, validate_message, r)
 }
 \arguments{
 \item{id, input, output, session}{Internal parameters for {shiny}.}

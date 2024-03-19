@@ -4,6 +4,7 @@
 #' @description A shiny for creating summary tables in the app body.
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
+#' @param box_title Character to be used as a box title.
 #'
 #' @rdname mod_body_sumtab
 #' @export
@@ -14,17 +15,16 @@
 #' @importFrom data.table setDT
 #' @importFrom shinyalert shinyalert
 #' @importFrom shinyjs hide hideElement
-mod_body_sumtab_ui <- function(id){
+mod_body_sumtab_ui <- function(id,box_title="Your title."){
   ns <- NS(id)
   tagList(
-    box(id=ns("box1"),width = 12,title=textOutput(ns("aftertrans_title")),
-        collapsible = F,status="primary",
+    box(width = 12,title=box_title,collapsible = F,status="primary",
         materialSwitch(ns("by_treatment"),h4("By treatment group"),inline=T,
                        status="primary"),
         h4("Current version of the dataset:"),
         DT::DTOutput(ns("sumtab_c")), #"static" table for the current version of dataset
         br(),
-        h4("After selected transformation method:"),
+        h4(textOutput(ns("sumtab_t_title"))),
         DT::DTOutput(ns("sumtab_t")), #reactive table depending on the selectInput with methods
         br()
         )
@@ -39,13 +39,11 @@ mod_body_sumtab_ui <- function(id){
 #' This is used in the summary tables. We also use here the selected transformation
 #' method from the mod_transform module, the active tab and the information whether
 #' the dataset was already transformed (r$transformedTF).
-#' @param box_title Character to be used as a box title.
 #'
 #'
 #' @rdname mod_body_sumtab
 #' @export
-mod_body_sumtab_server <- function(id,box_title="Your title.",
-                                   validate_message,r){
+mod_body_sumtab_server <- function(id,validate_message,r){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
@@ -53,7 +51,6 @@ mod_body_sumtab_server <- function(id,box_title="Your title.",
     dTOsumtab_c=reactive({
       validate(need(not_null(r$d1) & not_null(r$d2) & not_null(r$d3),
                validate_message))
-      req(r$transformedTF==FALSE)
       r$d_pivotlonger
     })
 
@@ -84,7 +81,6 @@ mod_body_sumtab_server <- function(id,box_title="Your title.",
     ####Datatables ----
     ###Current dataset
     output$sumtab_c=DT::renderDT({
-      req(r$transformedTF==FALSE)
       if(input$by_treatment){
         setDT(dTOsumtab_c())
         DT::datatable(dTOsumtab_c()[,as.list(Tsummary(abundances)),
@@ -115,6 +111,13 @@ mod_body_sumtab_server <- function(id,box_title="Your title.",
     }) #renderDT close
 
     ####Transformed dataset
+    output$sumtab_t_title=renderText({
+      if(r$transformedTF==FALSE){
+        "After selected transformation method:"
+      }else{"Your dataset has already been transformed. If you want to change a transformation method or return to an untransformed dataset, please reset the data and import it again."}
+    })
+
+
     output$sumtab_t=DT::renderDT({
       req(r$transformedTF==FALSE)
       if(input$by_treatment){
@@ -149,18 +152,10 @@ mod_body_sumtab_server <- function(id,box_title="Your title.",
     ####After transformation ----
     observe({
       if(r$transformedTF==TRUE){
-        shinyjs::hide("box1")
+        shinyjs::hide("by_treatment")
+        shinyjs::hide("sumtab_t")
       }
     })
-
-    output$aftertrans_title=renderText({
-      if(r$transformedTF==FALSE){
-        box_title
-      }else{
-        "Your dataset has already been transformed. If you want to change a transformation method or return to an untransformed dataset, please reset the data and import it again."
-      }
-    })
-
 
   })
 }
