@@ -18,7 +18,9 @@ mod_body_plot_ui <- function(id,box_title="Your title."){
   tagList(
 
     box(
-      width=12,title = box_title,collapsible = T,status="primary", #just for CSS
+      width=12,title = box_title,collapsible = T,
+      collapsed = ifelse(box_title=="Boxplot of abundances by runs",F,T),
+      status="primary", #just for CSS
       girafeOutput(ns("plot"))
     ) #box close
 
