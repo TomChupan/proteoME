@@ -29,7 +29,9 @@ golem::add_module(name = "factors", with_test = TRUE)
 golem::add_module(name="plot",with_test = TRUE)
 golem::add_module(name = "transform", with_test = FALSE)
 golem::add_module(name = "body_sumtab", with_test = FALSE)
-
+golem::add_module(name = "normalize", with_test = FALSE)
+golem::add_module(name = "body_normalize", with_test = FALSE)
+golem::add_module(name = "aggregate", with_test = FALSE)
 
 ## Add helper functions ----
 ## Creates fct_* and utils_*
@@ -59,6 +61,9 @@ usethis::use_package("shinyjs")
 usethis::use_package("magrittr")
 usethis::use_package("dplyr")
 usethis::use_package("data.table")
+usethis::use_package("DescTools")
+usethis::use_package("preprocessCore")
+usethis::use_package("MBQN")
 
 ## Check if you haven't missed anything:
 # This function will read all the scripts in the R/ folder and
