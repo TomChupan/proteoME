@@ -43,7 +43,7 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
     ),
     sidebarMenu(
       menuItem(text = menuItem_label,
-               startExpanded = T,
+               startExpanded = switch(plot_type,"eda_box_1"=T,F),
                br(),
                HTML("What does this plot show",as.character(
                  actionLink(inputId = ns("help"),
@@ -152,7 +152,7 @@ mod_plot_server <- function(id,plot_type,r){
 
     ####Data preparation----
 
-    dTOplot=eventReactive(input$render,{
+    dTOplot=eventReactive(input$render | input$apply,{
       req(not_null(r$d1) & not_null(r$d2) & not_null(r$d3))
       switch(plot_type,
              "eda_box_1"={
@@ -164,7 +164,6 @@ mod_plot_server <- function(id,plot_type,r){
                                    "log2(x+1)"=log2(d$abundances+1),
                                    "square root"=sqrt(d$abundances)
                )
-               d$runID=factor(d$runID,levels=names(r$d1)[-1])
                d
                }else{
                  return(NULL)
@@ -312,7 +311,7 @@ mod_plot_server <- function(id,plot_type,r){
       },
 
       content = function(file) {
-        ggsave(file)
+        ggsave(file,height=input$height,width=input$width)
       }
     )
 
