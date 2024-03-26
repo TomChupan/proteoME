@@ -23,5 +23,5 @@ method from the mod_transform module, the active tab and the information whether
 the dataset was already transformed (r$transformedTF).}
 }
 \description{
-A shiny for creating summary tables in the app body.
+A shiny module for creating summary tables in the app body.
 }

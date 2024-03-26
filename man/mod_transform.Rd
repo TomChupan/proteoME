@@ -14,7 +14,9 @@ mod_transform_server(id, r)
 
 \item{r}{A 'reactiveValues()' list containing (among other objects) data set with
 abundances. This is transformed here with one of the available methods. The original
-data set is overwritten.}
+data set is overwritten. A logical indicator (transformed or not?) is
+toggled here. Transformation method is saved to r to be used in
+other modules.}
 }
 \description{
 A shiny Module containing sidebar content for data transformation.
