@@ -81,8 +81,8 @@ observeEvent(r$edit_factors_button, {
         r$edit_table=isolate(r$edit_table) %>%
           group_by(Variable) %>%
           mutate(Original_Order = row_number()) %>%
-          mutate(New_Order = row_number()) %>%
-          mutate(Color = row_number())
+          mutate(New_Order = row_number()) #%>%
+          #mutate(Color = row_number()) #in the future
       }
     })
 
@@ -117,10 +117,14 @@ observeEvent(r$edit_factors_button, {
       }else{ #new levels
         for(col in unlist(unique(r$edit_table[,"Variable"]))){ #by variable
           r$d3[,col]=as.character(r$d3[,col])
-          rows=r$edit_table[,"Variable"]==col
+          rows=which(r$edit_table[,"Variable"]==col)
           for(original in unlist(r$edit_table[rows,"Original_Levels"])){ #by individual levels
-            index=r$edit_table[,"Original_Levels"]==original
+            index=which(r$edit_table[,"Original_Levels"]==original)
+            index=base::intersect(index,rows)
             r$d3[r$d3[,col]==original,col]=r$edit_table[index,"New_Levels"]
+            if(col=="treatment"){ #we need to change r$d_pivotlonger here
+              r$d_pivotlonger[r$d_pivotlonger[,col]==original,col]=r$edit_table[index,"New_Levels"]
+            }
           }
           r$d3[,col]=factor(r$d3[,col],
                               levels = as.character(unlist(r$edit_table[rows,"New_Levels"]))[as.numeric(unlist(r$edit_table[rows,"New_Order"]))])
