@@ -12,7 +12,7 @@ app_server <- function(input, output, session) {
   #within a mod_upload
 
   r=reactiveValues(
-    transformedTF=FALSE
+    transformedTF=FALSE,normalizedTF=FALSE,aggregatedTF=FALSE
   )
   mod_sidebar_server("sidebar_1",r=r)
   mod_body_server("body_1",r=r)
