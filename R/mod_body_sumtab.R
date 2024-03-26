@@ -1,7 +1,7 @@
 # body_sumtab UI Function
 
 #' @title mod_body_sumtab_ui and mod_body_sumtab_server
-#' @description A shiny for creating summary tables in the app body.
+#' @description A shiny module for creating summary tables in the app body.
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #' @param box_title Character to be used as a box title.
@@ -14,7 +14,7 @@
 #' @importFrom dplyr %>%
 #' @importFrom data.table setDT
 #' @importFrom shinyalert shinyalert
-#' @importFrom shinyjs hide hideElement
+#' @importFrom shinyjs hide show
 mod_body_sumtab_ui <- function(id,box_title="Your title."){
   ns <- NS(id)
   tagList(
@@ -152,8 +152,9 @@ mod_body_sumtab_server <- function(id,validate_message,r){
     ####After transformation ----
     observe({
       if(r$transformedTF==TRUE){
-        shinyjs::hide("by_treatment")
         shinyjs::hide("sumtab_t")
+      }else{
+        shinyjs::show("sumtab_t")
       }
     })
 
