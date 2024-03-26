@@ -152,23 +152,33 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
 
     }) #observeEvent close
 
-    observe({
+    #"Pivot longer" format
+    observeEvent(c(input$use_example_data,input$import),{
       req(not_null(r$d1)&not_null(r$d2)&not_null(r$d3))
       d=r$d1 %>%
         tidyr::pivot_longer(!Accession,names_to = "runID",values_to = "abundances")
+      d$index=1:nrow(d)
       d=merge(d,r$d2[,c(1:2)],by="runID")
       d=merge(d,r$d3[,c(1:2)],by="sampleID")
+      d=d[order(d$index),]
+      d$runID=factor(d$runID,levels=names(r$d1)[-1])
       r$d_pivotlonger=d
     })
 
+    #Reseting things from r
     observeEvent(input$reset,{
       r[[paste0("d",data_type)]]=NULL
       r$eda_box_1=NULL
       r$eda_hist_1=NULL
       r$d_pivotlonger=NULL
-      if(data_type==1){r$transformedTF=FALSE}
+      r$aggregatedTF==FALSE
+      if(data_type==1){
+        r$transformedTF=FALSE
+        r$normalizedTF=FALSE
+        }
     })
 
+    #Show/hide things on the sidebar when uploading/reseting
     observeEvent(c(input$use_example_data,input$import),{
       shinyjs::show("download")
       shinyjs::show("reset")
@@ -212,7 +222,7 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
       mod_factors_server("factors_1",r=r)
 
     ###Download button----
-      output$download <- downloadHandler(
+      output$download = downloadHandler(
         filename = function() {
           paste0("d",data_type,".csv")
         },

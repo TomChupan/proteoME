@@ -17,7 +17,7 @@ mod_transform_ui <- function(id){
       tags$style(".button {background-color:#90EE90;}")
       ),
     sidebarMenu(
-      menuItem(text = "Transform data set",
+      menuItem(text = "Transform dataset",
                startExpanded = T,
                selectInput(ns("method"),"Select the method:",
                            choices = c("log2(x)","log2(x+1)","sqrt(x)"),multiple = F),
@@ -29,14 +29,16 @@ mod_transform_ui <- function(id){
       ) #menuItemm close
     ) #sidebarMenu close
 
-  )
+  ) #tagList close
 }
 
 # transform Server Functions
 
 #' @param r A 'reactiveValues()' list containing (among other objects) data set with
 #' abundances. This is transformed here with one of the available methods. The original
-#' data set is overwritten.
+#' data set is overwritten. A logical indicator (transformed or not?) is
+#' toggled here. Transformation method is saved to r to be used in
+#' other modules.
 #'
 #' @rdname mod_transform
 #' @export
@@ -51,6 +53,7 @@ mod_transform_server <- function(id,r){
     ####Transformation process ----
 
     observeEvent(input$transform,{
+      req(not_null(r$d1) & not_null(r$d2) & not_null(r$d3))
       if(all(r$d1[,-1]>0,na.rm = T) | input$method!="log2(x)"){
       ask_confirmation(inputId = "confirm",title = "Are you sure?",
                        text = "The previous form of the dataset will be irretrievably lost! Make sure you have downloaded it or no longer need it.",
@@ -71,6 +74,7 @@ mod_transform_server <- function(id,r){
                          "log2(x+1)"=log2(r$d1[,-1]+1),
                          "sqrt(x)"=sqrt(r$d1[,-1])
                          )
+        r$d_pivotlonger[,"abundances"]=c(t(as.matrix(r$d1[,-1])))
         r$eda_box_1=NULL
         r$eda_hist_1=NULL
         r$transformedTF=TRUE
@@ -84,9 +88,17 @@ mod_transform_server <- function(id,r){
 
     ####After transformation ----
     observeEvent(input$transcheck,{
-      shinyalert(title = "Your dataset has already been  transformed",
+      shinyalert(title = "Your dataset has already been transformed!",
                  text="This action can be done only once. If you want to change a transformation method or return to an untransformed dataset, please reset the data and import it again.",
                  showConfirmButton = TRUE, type = "info")
+    })
+
+    ####Resets
+    observe({
+      if(r$transformedTF==FALSE){
+        shinyjs::show("transform")
+        shinyjs::hide("transcheck")
+      }
     })
 
 
