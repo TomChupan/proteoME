@@ -37,7 +37,13 @@ mod_sidebar_ui <- function(id){
 
     conditionalPanel(condition = "output.tabset_value =='trans'",ns=ns,
                      mod_transform_ui(ns("transform_1"))
-    ) #conditionalPanel transform close
+    ), #conditionalPanel transform close
+    conditionalPanel(condition = "output.tabset_value =='norm'",ns=ns,
+                     mod_normalize_ui(ns("normalize_1"))
+    ), #conditionalPanel normalize close
+    conditionalPanel(condition = "output.tabset_value =='ag'",ns=ns,
+                     mod_aggregate_ui(ns("aggregate_1"))
+    ) #conditionalPanel normalize close
 
   ) #tagList close
 }
@@ -64,6 +70,8 @@ mod_sidebar_server <- function(id,r){
     mod_plot_server("eda_1",plot_type="eda_box_1",r=r)
     mod_plot_server("eda_2",plot_type="eda_hist_1",r=r)
     mod_transform_server("transform_1",r=r)
+    mod_normalize_server("normalize_1",r=r)
+    mod_aggregate_server("aggregate_1",r=r)
 
   })
 }
