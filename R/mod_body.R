@@ -60,14 +60,24 @@ mod_body_ui <- function(id){
                            ) #fluidRow close
                          ) #fluidPage close
                 ), #tabPanel Transformation close
-                tabPanel("Normalization",value = "norm"
+                tabPanel("Normalization",value = "norm",
+                         fluidPage(
+                           fluidRow(
+                             mod_body_normalize_ui(ns("body_normalize_1"),
+                                                   box_title = "Boxplots of abundances")
+                           ) #fluidRow close
+                         ) #fluidPage close
                 ), #tabPanel Normalization close
-                tabPanel("Aggregation & Filtering",value = "agf"
-                ), #tabPanel Aggregation & Filtering close
+                tabPanel("Aggregation",value = "ag"
+                ), #tabPanel Aggregation close
+                tabPanel("Filtering",value = "f"
+                ), #tabPanel Filtering close
                 tabPanel("Missing values handling",value = "na"
                          ), #tabPanel Missing values handling close
                 tabPanel("Analysis",value = "an"
                 ), #tabPanel Analysis close
+                tabPanel("Log",value = "log"
+                ), #tabPanel Log close
     ) #tabsetPanel close
 
 
@@ -114,6 +124,11 @@ mod_body_server <- function(id,r){
     mod_body_sumtab_server("body_sumtab_1",
                            validate_message="Please upload all files.",
                            r=r)
+
+    #####Tab 4 ----
+    mod_body_normalize_server("body_normalize_1",
+                              validate_message="Please upload all files.",
+                              r=r)
 
     #####Modals when switchin tabs
     observeEvent(input$tabs, {
