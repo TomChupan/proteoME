@@ -68,7 +68,22 @@ mod_body_ui <- function(id){
                            ) #fluidRow close
                          ) #fluidPage close
                 ), #tabPanel Normalization close
-                tabPanel("Aggregation",value = "ag"
+                tabPanel("Aggregation",value = "ag",
+                         fluidPage(
+                           fluidRow(
+                             mod_body_tab1_ui(ns("body_tab1_4"),
+                                              box_title="Aggregated abundances",
+                                              data_type=4)
+                           ), #fluidRow close
+                           fluidRow(
+                             mod_body_plot_ui(ns("body_plot_3"),
+                                              box_title="Boxplot of abundances by samples")
+                           ), #fluidRow close,
+                           fluidRow(
+                             mod_body_plot_ui(ns("body_plot_4"),
+                                              box_title="Histogram of detected proteins in each sample")
+                           ) #fluidRow close
+                         ) #fluidPage close
                 ), #tabPanel Aggregation close
                 tabPanel("Filtering",value = "f"
                 ), #tabPanel Filtering close
@@ -129,6 +144,18 @@ mod_body_server <- function(id,r){
     mod_body_normalize_server("body_normalize_1",
                               validate_message="Please upload all files.",
                               r=r)
+
+    #####Tab 5 ----
+    mod_body_tab1_server("body_tab1_4",
+                         validate_message="Please aggregate your data with abundances.",
+                         data_type=4,
+                         r=r)
+    mod_body_plot_server("body_plot_3",
+                         plot_type="ag_box_1",
+                         r=r)
+    mod_body_plot_server("body_plot_4",
+                         plot_type="ag_hist_1",
+                         r=r)
 
     #####Modals when switchin tabs
     observeEvent(input$tabs, {

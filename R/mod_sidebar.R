@@ -42,7 +42,15 @@ mod_sidebar_ui <- function(id){
                      mod_normalize_ui(ns("normalize_1"))
     ), #conditionalPanel normalize close
     conditionalPanel(condition = "output.tabset_value =='ag'",ns=ns,
-                     mod_aggregate_ui(ns("aggregate_1"))
+                     mod_aggregate_ui(ns("aggregate_1")),
+                     mod_plot_ui(ns("ag_1"),
+                                 plot_type="ag_box_1",
+                                 menuItem_label = "Boxplot of abundances by samples"
+                                 ),
+                     mod_plot_ui(ns("ag_2"),
+                                 plot_type="ag_hist_1",
+                                 menuItem_label = "Histogram of detected
+                                 proteins in each sample")
     ) #conditionalPanel normalize close
 
   ) #tagList close
@@ -72,6 +80,8 @@ mod_sidebar_server <- function(id,r){
     mod_transform_server("transform_1",r=r)
     mod_normalize_server("normalize_1",r=r)
     mod_aggregate_server("aggregate_1",r=r)
+    mod_plot_server("ag_1",plot_type="ag_box_1",r=r)
+    mod_plot_server("ag_2",plot_type="ag_hist_1",r=r)
 
   })
 }
