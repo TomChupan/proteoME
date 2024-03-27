@@ -11,6 +11,8 @@
 #'
 #' @importFrom shinyWidgets ask_confirmation confirmSweetAlert
 #' @importFrom shinyjs hide hidden show
+#' @importFrom tidyr pivot_longer
+#' @importFrom dplyr %>%
 mod_aggregate_ui <- function(id){
   ns <- NS(id)
   tagList(
@@ -21,7 +23,8 @@ mod_aggregate_ui <- function(id){
       menuItem(text = "Aggregate dataset",
                startExpanded = T,
                selectInput(ns("method"),"Aggregate by:",
-                           choices = c("mean of runs","median of runs"),multiple = F),
+                           choices = c("mean of runs"="mean",
+                                       "median of runs"="median"),multiple = F),
                numericInput(ns("atleast"),"Include into sample if protein was quantified in at least __ % of replicates:",
                             value = 50,min = 1,max=100,step=1),
                actionButton(ns("aggregate"),"Aggregate"),
@@ -62,22 +65,29 @@ mod_aggregate_server <- function(id,r){
 
     observeEvent(input$aggregate,{
       req(not_null(r$d1) & not_null(r$d2) & not_null(r$d3))
-
         ask_confirmation(inputId = "confirm",title = "Are you sure?",
                          text = "Have you checked the post-aggregation form of the dataset in all available visualization tools? The previous form of the dataset (by runs) will be still available.",
                          type = "info",cancelOnDismiss = T,
                          btn_labels = c("No, I'll think about it.","Yes, aggregate it!")
         )
-
     })
 
     observeEvent(input$confirm,{
       if(isTRUE(input$confirm)){
-        #aggregation procedure and r$d1_ag
-
+        r$d4=proteoAG(r$d_pivotlonger,
+                         method = input$method,
+                         percent = input$atleast)
         r$aggregatedTF=TRUE
+        d=r$d4 %>%
+          tidyr::pivot_longer(!Accession,names_to = "sampleID",values_to = "abundances")
+        d$index=1:nrow(d)
+        d=merge(d,r$d3[,c(1:2)],by="sampleID")
+        d=d[order(d$index),]
+        d$sampleID=factor(d$sampleID,levels=r$d3[,"sampleID"])
+        d$Accession=factor(d$Accession,levels=r$d1[,"Accession"])
+        r$dAG_pivotlonger=d
         shinyalert(title = "Your dataset has been successfully aggregated!",
-                   text="You can check the dataset via available visualization tools on this tab or proceed to the following analysis steps in a few seconds after closing this window (we need to recalculate something :-).",
+                   text="You can check the dataset via available visualization tools on this tab or proceed to the following analysis steps.",
                    showConfirmButton = TRUE, type = "success")
         shinyjs::hide("aggregate")
         shinyjs::show("aggcheck")
@@ -104,7 +114,8 @@ mod_aggregate_server <- function(id,r){
 
     observeEvent(input$reconfirm,{
       r$aggregatedTF=FALSE
-      #r$d1_ag=NULL
+      r$d4=NULL
+      r$dAG_pivotlonger=NULL
       shinyjs::show("aggregate")
       shinyjs::hide("aggcheck")
       shinyjs::hide("reset")
@@ -117,7 +128,7 @@ mod_aggregate_server <- function(id,r){
         paste0("d1_aggregated.csv")
       },
       content = function(file) {
-        write.csv(r$d1_ag, file)
+        write.csv(r$d4, file,row.names = F)
       }
     )
 

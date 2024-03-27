@@ -14,9 +14,9 @@ mod_aggregate_server(id, r)
 
 \item{r}{A 'reactiveValues()' list containing (among other objects) data set with
 abundances. This is aggregated here with one of the available methods and
-parameters to the sample level. A logical indicator (aggregated or not?) is
-toggled here. Aggregation method and parameters are saved to r to be used in
-other modules.}
+parameters to the sample level (and it can be downloaded).
+A logical indicator (aggregated or not?) is toggled here.
+Aggregation method and parameters are saved to r to be used in other modules.}
 }
 \description{
 A shiny Module containing sidebar content for data aggregation.
