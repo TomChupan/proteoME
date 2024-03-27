@@ -35,7 +35,8 @@ golem::add_module(name = "aggregate", with_test = FALSE)
 
 ## Add helper functions ----
 ## Creates fct_* and utils_*
-golem::add_fct("summary", with_test = FALSE)
+golem::add_fct("Tsummary", with_test = FALSE)
+golem::add_fct("proteoAG", with_test = FALSE)
 golem::add_utils("helpers", with_test = TRUE)
 
 #Is the app in dev-mode?
