@@ -27,6 +27,7 @@
 #' @importFrom plotly as_widget
 #' @importFrom shinyWidgets dropdownButton toggleDropdownButton
 #' @importFrom colourpicker colourInput
+#' @importFrom shinyjs hide
 mod_plot_ui <- function(id,plot_type,menuItem_label){
   ns <- NS(id)
   tagList(
@@ -43,7 +44,9 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
     ),
     sidebarMenu(
       menuItem(text = menuItem_label,
-               startExpanded = switch(plot_type,"eda_box_1"=T,F),
+               startExpanded = switch(plot_type,
+                                      "eda_box_1"=T,
+                                      F),
                br(),
                HTML("What does this plot show",as.character(
                  actionLink(inputId = ns("help"),
@@ -54,14 +57,17 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
                            label=switch(plot_type,
                                         "eda_box_1"="Select the form of abundances:",
                                         "eda_hist_1"="Select the grouping option:",
+                                        "ag_hist_1"="Select the grouping option:",
                                         NULL),
                            choices = switch(plot_type,
-                                          "eda_box_1"=c("just the values"="original",
-                                                        "log-transformed","log2(x+1)",
-                                                        "square root"),
-                                          "eda_hist_1"=c("without grouping","with grouping"),
-                                          NULL),multiple = F
-                           ), #selectInput close
+                                            "eda_box_1"=c("just the values"="original",
+                                                          "log-transformed","log2(x+1)",
+                                                          "square root"),
+                                            "eda_hist_1"=c("without grouping","with grouping"),
+                                            "ag_hist_1"=c("without grouping","with grouping"),
+                                            NULL),multiple = F
+               ), #selectInput close
+
       ####Dropdown button ----
                dropdownButton(
                  circle=F,status="primary",size="sm",inputId=ns("dropmenu"),
@@ -181,6 +187,20 @@ mod_plot_server <- function(id,plot_type,r){
                d
 
              }, #eda_hist_1 close
+             "ag_box_1"={
+               req(not_null(r$d4))
+               d=r$dAG_pivotlonger
+               d
+             }, #ag_box_1 close
+             "ag_hist_1"={
+               d=data.frame(detected=as.numeric(colSums(not_na(r$d4[-1]) &
+                                                          r$d4[-1]!=0)),
+                            sampleID=names(colSums(not_na(r$d4[-1]) &
+                                                  r$d4[-1]!=0))
+               )
+               d=merge(d,r$d3[,c(1:2)],by="sampleID")
+               d
+             }, #eda_hist_1 close
              NULL)
     }) #dTOplot close
 
@@ -289,6 +309,106 @@ mod_plot_server <- function(id,plot_type,r){
                )
                x
              }, #eda_hist_1 close
+             "ag_box_1"={
+               ag_box_1=ggplot(data=dTOplot(),aes(x=sampleID,y=abundances,
+                                                   fill=treatment,tooltip=after_stat({
+                                                     paste0(
+                                                       "sampleID: ", levels(as.factor(dTOplot()$sampleID)),
+                                                       "\ndetected proteins: ",
+                                                       as.numeric(table(dTOplot()$sampleID[not_na(dTOplot()$abundances)])),
+                                                       "\nQ3: ", round(as.data.frame(dTOplot() %>%
+                                                                                       group_by(sampleID) %>%
+                                                                                       dplyr::summarize(q75=quantile(abundances, probs = 0.75,na.rm=T)))$q75,2),
+                                                       "\nmedian: ", round(as.data.frame(dTOplot() %>%
+                                                                                           group_by(sampleID) %>%
+                                                                                           dplyr::summarize(m=median(abundances,na.rm=T)))$m,2),
+                                                       "\nQ1: ", round(as.data.frame(dTOplot() %>%
+                                                                                       group_by(sampleID) %>%
+                                                                                       dplyr::summarize(q25=quantile(abundances, probs = 0.25,na.rm=T)))$q25,2),
+                                                       "\nnot detected (of all detected proteins in the data set): ",
+                                                       as.numeric(table(dTOplot()$sampleID[is.na(dTOplot()$abundances) | dTOplot()$abundances==0])),
+                                                       "\n% of detected proteins: ",
+                                                       round(100*as.numeric(table(dTOplot()$sampleID[not_na(dTOplot()$abundances)]))/length(unique(dTOplot()$Accession)),2),
+                                                       " %"
+                                                     )}),data_id=sampleID))+
+                 geom_boxplot_interactive(varwidth=T,outlier.colour=input$out_color,
+                                          outlier.size=input$out_size,
+                                          notch=input$notch,na.rm=T)+
+                 ylab(input$ylab)+xlab(input$xlab)+
+                 theme_classic()+
+                 theme(
+                   axis.title = element_text(size=input$axis_title_size),
+                   axis.text = element_text(size=input$axis_text_size),
+                   legend.title = element_text(size=input$legend_title_size),
+                   legend.text = element_text(size=input$legend_text_size)
+                 )
+
+               if(input$yzero){
+                 ag_box_1=ag_box_1+ylim(0,NA)
+               }
+
+               if(input$xaxis){
+                 ag_box_1=ag_box_1+
+                   theme(axis.text.x=element_blank(),
+                         axis.ticks.x=element_blank())
+               }
+
+               x=ggiraph::girafe(ggobj = ag_box_1,
+                                 height_svg = input$height,width_svg = input$width,
+                                 options = list(
+                                   opts_hover(css = ""),
+                                   opts_zoom(max=4) ,
+                                   opts_selection(type = "none",css = NULL),
+                                   opts_toolbar(saveaspng=FALSE)
+                                 )
+               )
+               x
+             }, #ag_box_1 close
+             "ag_hist_1"={
+               if(input$select_1=="without grouping"){ #without grouping
+                 ag_hist_1=ggplot(data=dTOplot(),aes(x=detected))+
+                   geom_histogram_interactive(aes(tooltip=paste0("Bin range: [",
+                                                                 round(after_stat(xmin),2),
+                                                                 ",",round(after_stat(xmax),2),
+                                                                 "] \ncount: ",after_stat(count))),
+                                              fill="lightblue",color="black",
+                                              alpha=input$alpha,
+                                              binwidth=input$binwidth)+
+                   theme_classic()
+               }else{ #with grouping (by treatment)
+                 ag_hist_1=ggplot(data=dTOplot(),aes(x=detected,fill=treatment))+
+                   geom_histogram_interactive(aes(tooltip=paste0("Bin range: [",
+                                                                 round(after_stat(xmin),2),
+                                                                 ",",round(after_stat(xmax),2),"]")),
+                                              alpha=input$alpha,color="black",
+                                              position="identity",
+                                              binwidth=input$binwidth)+
+                   theme_classic()+
+                   theme(
+                     panel.grid.major.y = element_line(colour="darkgrey"),
+                     panel.grid.minor.y = element_line(colour="grey")
+                   ) #no count tooltips so let's have major and minor grid
+               }
+               ag_hist_1=ag_hist_1+
+                 xlab(input$xlab)+
+                 theme(
+                   axis.title = element_text(size=input$axis_title_size),
+                   axis.text = element_text(size=input$axis_text_size),
+                   legend.title = element_text(size=input$legend_title_size),
+                   legend.text = element_text(size=input$legend_text_size)
+                 )+ylab(input$ylab)
+
+               x=ggiraph::girafe(ggobj = ag_hist_1,
+                                 height_svg = input$height,width_svg = input$width,
+                                 options = list(
+                                   opts_hover(css = ""),
+                                   opts_zoom(max=4),
+                                   opts_selection(type = "none",css = NULL),
+                                   opts_toolbar(saveaspng=FALSE)
+                                 )
+               )
+               x
+             }, #ag_hist_1 close
              NULL) #switch close
 
     }) #plot close
@@ -297,7 +417,9 @@ mod_plot_server <- function(id,plot_type,r){
       req(plot())
       switch(plot_type,
              "eda_box_1"={r$eda_box_1=plot()},
-             "eda_hist_1"={r$eda_hist_1=plot()}
+             "eda_hist_1"={r$eda_hist_1=plot()},
+             "ag_box_1"={r$ag_box_1=plot()},
+             "ag_hist_1"={r$ag_hist_1=plot()}
              )
     })
 
@@ -333,7 +455,9 @@ mod_plot_server <- function(id,plot_type,r){
         modalDialog(
           switch(plot_type,
                  "eda_box_1"=includeMarkdown(app_sys("app/www/helper_eda_box_1.Rmd")),
-                 "eda_hist_1"=includeMarkdown(app_sys("app/www/helper_eda_hist_1.Rmd"))
+                 "eda_hist_1"=includeMarkdown(app_sys("app/www/helper_eda_hist_1.Rmd")),
+                 "ag_box_1"=includeMarkdown(app_sys("app/www/helper_eda_box_1.Rmd")),
+                 "ag_hist_1"=includeMarkdown(app_sys("app/www/helper_eda_hist_1.Rmd"))
           ),
           footer = modalButton("Close"),
           size="l",
@@ -356,6 +480,11 @@ mod_plot_server <- function(id,plot_type,r){
         r$eda_box_1=NULL
       }
     })
+
+    #### Other stuff ----
+    if(plot_type=="ag_box_1"){
+      shinyjs::hide("select_1")
+    }
 
   })
 }

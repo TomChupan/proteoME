@@ -50,6 +50,8 @@ mod_body_plot_server <- function(id,
       switch(plot_type,
              "eda_box_1"=r$eda_box_1,
              "eda_hist_1"=r$eda_hist_1,
+             "ag_box_1"=r$ag_box_1,
+             "ag_hist_1"=r$ag_hist_1,
              NULL)
     }) #renderPlot close
 

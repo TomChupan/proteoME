@@ -2,11 +2,11 @@
 title: ""
 output: html_document
 ---
-# Histogram of detected proteins in each run
+# Histogram of detected proteins in each run/sample
 
-In each run a certain number of proteins are detected. This visualization divides the x-axis (number of proteins detected) to the bins. The displayed columns (one for each bin) reach the height of the number of runs with detected proteins within a bin.
+In each run a certain number of proteins are detected (Exploratory data analysis tab). In each sample a certain number of detected proteins are aggregated and considered detected for the sample (Aggregation tab). This visualization divides the x-axis (number of proteins detected) to the bins. The displayed columns (one for each bin) reach the height of the number of runs/samples with detected proteins within a bin.
 
-For example, if a column within bin [1030,1050] reaches a height of 61, it means that between 1030 a 1050 proteins were detected in 61 runs.
+For example, if a column within bin [1030,1050] reaches a height of 61, it means that between 1030 a 1050 proteins were detected in 61 runs/samples (depending on the tab you are currently using).
 
 You can choose whether to display:
 * one joint histogram (without grouping by treatment)
@@ -24,7 +24,7 @@ In the second case, histograms are distinguished by color based on treatment gro
 When you hover the mouse cursor over a particular column, an info box appears with some information depending on whether you have selected a grouping or not.
 * without grouping:
     * bin range
-    * number of runs within that bin (count)
+    * number of runs/samples within that bin (count)
 * with grouping:
     * bin range only (due to the possibility of overlapping histograms)
 
