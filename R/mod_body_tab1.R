@@ -22,18 +22,21 @@
 #' @importFrom shiny NS tagList fluidRow tableOutput validate need
 #' @importFrom shinydashboard box valueBox valueBoxOutput renderValueBox
 #' @importFrom DT DTOutput datatable renderDT formatRound
-mod_body_tab1_ui <- function(id,box_title="Your title.",data_type=c(1,2,3)){
+mod_body_tab1_ui <- function(id,box_title="Your title.",data_type=c(1,2,3,4)){
   ns <- NS(id)
   tagList(
 
         box(
-          width=switch(data_type,8,6,6),height = '30%',title = box_title,status="primary", #just for CSS
+          width=switch(data_type,8,6,6,8),height = '30%',title = box_title,
+          collapsible = T,status="primary", #just for CSS
            DTOutput(ns("tab")),br()
         ), #box close
-        if(data_type==1){
+        if(data_type %in% c(1,4)){
           column(4,
           valueBoxOutput(ns("n_proteins"),width=12),
-          valueBoxOutput(ns("n_runs"),width = 12),
+          if(data_type==1){
+          valueBoxOutput(ns("n_runs"),width = 12)
+            },
           valueBoxOutput(ns("n_samples"),width = 12)
           ) #column close
           } #if close
@@ -58,7 +61,7 @@ mod_body_tab1_ui <- function(id,box_title="Your title.",data_type=c(1,2,3)){
 #' @export
 mod_body_tab1_server <- function(id,
                                  validate_message="Please upload missing file!",
-                                 data_type=c(1,2,3),
+                                 data_type=c(1,2,3,4),
                                  r){
   moduleServer(id, function(input, output, session){
     ns <- session$ns
@@ -67,7 +70,8 @@ mod_body_tab1_server <- function(id,
       switch(data_type,
              r$d1,
              r$d2,
-             r$d3)
+             r$d3,
+             r$d4)
     })
 
     output$tab=renderDT({
@@ -82,15 +86,23 @@ mod_body_tab1_server <- function(id,
                 ) %>%
         DT::formatRound(columns = which(sapply(r[[paste0("d",data_type)]],
                                                is.numeric)),
-                        digits = ifelse(data_type==1,2,0))
+                        digits = ifelse(data_type %in% c(1,4),2,0))
 
     }) #renderDataTable close
 
     output$n_proteins=renderValueBox({
+      if(data_type==1){ #not aggregated
       if(is.null(r$d1)){
         valueBox("No file loaded","Total number of proteins (rows)",icon=icon("list"))
       }else{
         valueBox(nrow(r$d1),"Total number of proteins (rows)",icon=icon("list"),color="green")
+      }
+      }else{ #aggregated
+        if(is.null(r$d4)){
+          valueBox("Not aggregated","Total number of proteins (rows)",icon=icon("list"))
+        }else{
+          valueBox(nrow(r$d4),"Total number of proteins (rows)",icon=icon("list"),color="green")
+        }
       }
 
     }) #renderValueBox close
@@ -105,10 +117,18 @@ mod_body_tab1_server <- function(id,
     }) #renderValueBox close
 
     output$n_samples=renderValueBox({
+      if(data_type==1){ #not aggregated
       if(is.null(r$d2)){
         valueBox("No file loaded","Number of samples",icon=icon("person"))
       }else{
         valueBox(nrow(as.data.frame(unique(r$d2[,2]))),"Number of samples",icon=icon("person"),color="green")
+      }
+      }else{ #aggregated
+        if(is.null(r$d4)){
+          valueBox("Not aggregated","Number of samples",icon=icon("person"))
+        }else{
+          valueBox(ncol(r$d4)-1,"Number of samples",icon=icon("person"),color="green")
+        }
       }
 
     }) #renderValueBox close

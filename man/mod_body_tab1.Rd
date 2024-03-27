@@ -5,12 +5,12 @@
 \alias{mod_body_tab1_server}
 \title{mod_body_tab1_ui and mod_body_tab1_server}
 \usage{
-mod_body_tab1_ui(id, box_title = "Your title.", data_type = c(1, 2, 3))
+mod_body_tab1_ui(id, box_title = "Your title.", data_type = c(1, 2, 3, 4))
 
 mod_body_tab1_server(
   id,
   validate_message = "Please upload missing file!",
-  data_type = c(1, 2, 3),
+  data_type = c(1, 2, 3, 4),
   r
 )
 }
