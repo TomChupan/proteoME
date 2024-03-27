@@ -162,6 +162,8 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
       d=merge(d,r$d3[,c(1:2)],by="sampleID")
       d=d[order(d$index),]
       d$runID=factor(d$runID,levels=names(r$d1)[-1])
+      d$sampleID=factor(d$sampleID,levels=r$d3[,"sampleID"])
+      d$Accession=factor(d$Accession,levels=r$d1[,"Accession"])
       r$d_pivotlonger=d
     })
 
@@ -227,7 +229,7 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
           paste0("d",data_type,".csv")
         },
         content = function(file) {
-          write.csv(r[[paste0("d",data_type)]], file)
+          write.csv(r[[paste0("d",data_type)]], file,row.names = F)
         }
       )
 
