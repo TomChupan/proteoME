@@ -32,11 +32,16 @@ golem::add_module(name = "body_sumtab", with_test = FALSE)
 golem::add_module(name = "normalize", with_test = FALSE)
 golem::add_module(name = "body_normalize", with_test = FALSE)
 golem::add_module(name = "aggregate", with_test = FALSE)
+golem::add_module(name = "body_aggregate", with_test = FALSE)
+golem::add_module(name = "body_filter", with_test = FALSE)
+golem::add_module(name = "filter", with_test = FALSE)
 
 ## Add helper functions ----
 ## Creates fct_* and utils_*
 golem::add_fct("Tsummary", with_test = FALSE)
 golem::add_fct("proteoAG", with_test = FALSE)
+golem::add_fct("detectionMedians", with_test = FALSE)
+golem::add_fct("proteoFI", with_test = FALSE)
 golem::add_utils("helpers", with_test = TRUE)
 
 #Is the app in dev-mode?
@@ -65,6 +70,10 @@ usethis::use_package("data.table")
 usethis::use_package("DescTools")
 usethis::use_package("preprocessCore")
 usethis::use_package("MBQN")
+usethis::use_package("ComplexHeatmap")
+usethis::use_package("viridis")
+usethis::use_package("shinyscreenshot")
+usethis::use_package("naniar")
 
 ## Check if you haven't missed anything:
 # This function will read all the scripts in the R/ folder and
