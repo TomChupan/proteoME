@@ -11,7 +11,7 @@ proteoAG(data_run_pivotlonger, method = c("mean", "median"), percent = 50)
 The way you should get this format from the original format (see ?proteoME::data_example)
 is shown in the examples. Stick with the presented column names!}
 
-\item{method}{Aggregation method. You can choose between mean and median.}
+\item{method}{Aggregation method. You can choose between 'mean' and 'median'.}
 
 \item{percent}{A number between 1 and 100 that represents the minimum required percentage
 of quantified runs within a sample for aggregatation to take place for that
@@ -26,6 +26,7 @@ the 'sample level'.
 }
 \examples{
 # Data to pivot longer format
+library(dplyr)
 pivot_longer=data_example \%>\%
 tidyr::pivot_longer(!Accession,names_to = "runID",values_to = "abundances")
 d$index=1:nrow(d)
@@ -35,7 +36,6 @@ d=merge(d,ann_sample_example[,c(1:2)],by="sampleID")
 d=d[order(d$index),]
 d$runID=factor(d$runID,levels=names(data_example)[-1])
 d$sampleID=factor(d$sampleID,levels=ann_sample_example$sampleID)
-d$Accession=factor(d$Accession,levels=data_example$Accession)
 
 proteoAG(data,method="mean",percent=66)
 
