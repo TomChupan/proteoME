@@ -70,6 +70,16 @@ mod_body_ui <- function(id){
                 ), #tabPanel Normalization close
                 tabPanel("Aggregation",value = "ag",
                          fluidPage(
+                           h3("Before the aggregation:"),
+                           fluidRow(
+                             mod_body_plot_ui(ns("body_plot_5"),
+                                              box_title="Barplot of number of detections")
+                           ), #fluidRow close
+                           fluidRow(
+                             mod_body_aggregate_ui(ns("body_aggregate_1"),
+                                              box_title="Heatmap of detections within a sample")
+                           ), #fluidRow close
+                           h3("After the aggregation:"),
                            fluidRow(
                              mod_body_tab1_ui(ns("body_tab1_4"),
                                               box_title="Aggregated abundances",
@@ -78,14 +88,20 @@ mod_body_ui <- function(id){
                            fluidRow(
                              mod_body_plot_ui(ns("body_plot_3"),
                                               box_title="Boxplot of abundances by samples")
-                           ), #fluidRow close,
+                           ), #fluidRow close
                            fluidRow(
                              mod_body_plot_ui(ns("body_plot_4"),
                                               box_title="Histogram of detected proteins in each sample")
                            ) #fluidRow close
                          ) #fluidPage close
                 ), #tabPanel Aggregation close
-                tabPanel("Filtering",value = "f"
+                tabPanel("Filtering",value = "f",
+                         fluidPage(
+                           fluidRow(
+                             mod_body_filter_ui(ns("body_filter_1"),
+                                                   box_title="Missingness exploration")
+                           ) #fluidRow close
+                         ) #fluidPage close
                 ), #tabPanel Filtering close
                 tabPanel("Missing values handling",value = "na"
                          ), #tabPanel Missing values handling close
@@ -146,6 +162,11 @@ mod_body_server <- function(id,r){
                               r=r)
 
     #####Tab 5 ----
+    mod_body_plot_server("body_plot_5",
+                         plot_type="ag_bar_1",
+                         r=r)
+    mod_body_aggregate_server("body_aggregate_1",
+                         r=r)
     mod_body_tab1_server("body_tab1_4",
                          validate_message="Please aggregate your data with abundances.",
                          data_type=4,
@@ -156,6 +177,12 @@ mod_body_server <- function(id,r){
     mod_body_plot_server("body_plot_4",
                          plot_type="ag_hist_1",
                          r=r)
+
+    #####Tab 6 - Filtering -----
+    mod_body_filter_server("body_filter_1",
+                           validate_message="Please aggregate your data with abundances.",
+                           validate_message2="Please ease your filtering requirements - you would filter out all rows with current parameter values.",
+                           r=r)
 
     #####Modals when switchin tabs
     observeEvent(input$tabs, {
