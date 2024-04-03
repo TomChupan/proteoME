@@ -167,17 +167,30 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
       r$d_pivotlonger=d
     })
 
-    #Reseting things from r
+    ####Resets ----
+
+    ##Reseting things from r
     observeEvent(input$reset,{
+      #Data
       r[[paste0("d",data_type)]]=NULL
+      r$d_pivotlonger=NULL
+      r$d4=NULL
+      r$d_detected=NULL
+      r$dAG_pivotlonger=NULL
+      #Plots
       r$eda_box_1=NULL
       r$eda_hist_1=NULL
-      r$d_pivotlonger=NULL
-      r$aggregatedTF==FALSE
+      r$ag_heatmap_1=NULL
+      r$ag_box_1=NULL
+      r$ag_hist_1=NULL
+      r$ag_bar_1=NULL
+      #T/F indicators
       if(data_type==1){
         r$transformedTF=FALSE
         r$normalizedTF=FALSE
-        }
+      }
+      r$aggregatedTF=FALSE
+      r$filteredTF=FALSE
     })
 
     #Show/hide things on the sidebar when uploading/reseting
