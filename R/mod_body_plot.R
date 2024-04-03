@@ -19,7 +19,10 @@ mod_body_plot_ui <- function(id,box_title="Your title."){
 
     box(
       width=12,title = box_title,collapsible = T,
-      collapsed = ifelse(box_title=="Boxplot of abundances by runs",F,T),
+      collapsed = switch(box_title,
+                         "Boxplot of abundances by runs"=F,
+                         "Barplot of number of detections"=F,
+                         T),
       status="primary", #just for CSS
       girafeOutput(ns("plot"))
     ) #box close
@@ -52,6 +55,7 @@ mod_body_plot_server <- function(id,
              "eda_hist_1"=r$eda_hist_1,
              "ag_box_1"=r$ag_box_1,
              "ag_hist_1"=r$ag_hist_1,
+             "ag_bar_1"=r$ag_bar_1,
              NULL)
     }) #renderPlot close
 
