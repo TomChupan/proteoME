@@ -21,13 +21,14 @@
 #' @export
 #'
 #' @importFrom dplyr %>%
-#' @importFrom ggplot2 ggplot after_stat theme_classic aes ggsave ylab xlab theme element_text ylim scale_y_continuous element_line element_blank
-#' @importFrom ggiraph geom_boxplot_interactive girafe opts_hover opts_zoom opts_toolbar geom_histogram_interactive opts_selection
+#' @importFrom ggplot2 ggplot after_stat theme_classic theme_minimal aes ggsave ylab xlab theme element_text ylim scale_y_continuous element_line element_blank position_dodge2
+#' @importFrom ggiraph geom_boxplot_interactive girafe opts_hover opts_zoom opts_toolbar geom_histogram_interactive opts_selection geom_col_interactive
 #' @importFrom htmlwidgets saveWidget
 #' @importFrom plotly as_widget
 #' @importFrom shinyWidgets dropdownButton toggleDropdownButton
 #' @importFrom colourpicker colourInput
 #' @importFrom shinyjs hide
+#' @importFrom tidyr pivot_wider
 mod_plot_ui <- function(id,plot_type,menuItem_label){
   ns <- NS(id)
   tagList(
@@ -46,6 +47,7 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
       menuItem(text = menuItem_label,
                startExpanded = switch(plot_type,
                                       "eda_box_1"=T,
+                                      "ag_bar_1"=T,
                                       F),
                br(),
                HTML("What does this plot show",as.character(
@@ -58,6 +60,7 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
                                         "eda_box_1"="Select the form of abundances:",
                                         "eda_hist_1"="Select the grouping option:",
                                         "ag_hist_1"="Select the grouping option:",
+                                        "ag_bar_1"="Select the grouping option",
                                         NULL),
                            choices = switch(plot_type,
                                             "eda_box_1"=c("just the values"="original",
@@ -65,6 +68,7 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
                                                           "square root"),
                                             "eda_hist_1"=c("without grouping","with grouping"),
                                             "ag_hist_1"=c("without grouping","with grouping"),
+                                            "ag_bar_1"=c("without grouping","with grouping"),
                                             NULL),multiple = F
                ), #selectInput close
 
@@ -84,7 +88,10 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
                           textInput(ns("xlab"),label = "X-axis label",
                                     value = switch(plot_type,
                                                    "eda_box_1"="runID",
-                                                   "eda_hist_1"="number of detected proteins in each run"
+                                                   "eda_hist_1"="number of detected proteins in each run",
+                                                   "ag_box_1"="sampleID",
+                                                   "ag_hist_1"="number of detected proteins in each sample",
+                                                   "ag_bar_1"="number of detections of one protein within one sample"
                                                    ))
                           ),
                    column(6,numericInput(ns("width"),"Width (inches)",min=1,
@@ -96,7 +103,10 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
                           textInput(ns("ylab"),label = "Y-axis label",
                                     value = switch(plot_type,
                                                    "eda_box_1"="abundances",
-                                                   "eda_hist_1"="count"
+                                                   "eda_hist_1"="count",
+                                                   "ag_box_1"="abundances",
+                                                   "ag_hist_1"="count",
+                                                   "ag_bar_1"="count"
                                     )))
                  ), #fludiRow close
                  h4("Features specific to the plot type:"),
@@ -116,10 +126,22 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
                  if(grepl("hist",plot_type)){ #histograms
                    fluidRow(
                      column(6,numericInput(ns("binwidth"),"Bin width",min=1,
-                                           max=10000,value=30,step=1)),
+                                           max=10000,value=30,step=1),
+                            colourInput(ns("binfill"),"Bin color (fill)",
+                                        palette = "square",value = "lightblue")),
                      column(6,numericInput(ns("alpha"),
                                            "Degree of transparency (alpha)",min=0,
-                                           max=1,value=0.5,step=0.01))
+                                           max=1,value=0.5,step=0.01),
+                           colourInput(ns("bincol"),"Bin color (border)",
+                                        palette = "limited",value = "#000000"))
+                   ) #fluidRow close
+                 },
+                 if(grepl("bar",plot_type)){ #barplots
+                   fluidRow(
+                     column(6,colourInput(ns("barfill"),"Bar color (fill)",
+                                          palette = "square",value = "lightblue")),
+                     column(6,colourInput(ns("barcol"),"Bar color (border)",
+                                          palette = "limited",value = "#000000"))
                    ) #fluidRow close
                  },
                  actionButton(ns("apply"),"Apply changes")
@@ -193,6 +215,7 @@ mod_plot_server <- function(id,plot_type,r){
                d
              }, #ag_box_1 close
              "ag_hist_1"={
+               req(not_null(r$d4))
                d=data.frame(detected=as.numeric(colSums(not_na(r$d4[-1]) &
                                                           r$d4[-1]!=0)),
                             sampleID=names(colSums(not_na(r$d4[-1]) &
@@ -201,6 +224,51 @@ mod_plot_server <- function(id,plot_type,r){
                d=merge(d,r$d3[,c(1:2)],by="sampleID")
                d
              }, #eda_hist_1 close
+             "ag_bar_1"={
+               if(is.null(r$d_detected)){
+                   detected=aggregate(abundances ~ Accession + sampleID,
+                                      data = r$d_pivotlonger,
+                                      FUN = function(x){
+                                        length(x)-sum(is.na(x))-sum(x==0,na.rm = T)
+                                      },
+                                      na.action = na.pass)
+                   detected=detected %>%
+                     tidyr::pivot_wider(names_from = "sampleID",values_from = "abundances",
+                                        names_sort = F)
+                   r$d_detected=detected
+               }
+               detmax=max(r$d_detected[,-1])
+               if(input$select_1=="without grouping"){ #without grouping
+                 d=data.frame(detected_n=0:detmax)
+                 d$count=sapply(0:detmax,function(value){
+                   sum(apply(r$d_detected[,-1],1,function(x) sum(x==value)))
+                 })
+                 d=d %>%
+                   mutate(relative_count = count/sum(count)*100)
+                 d$tooltip=paste0(d$detected_n," detected: ",d$count," (",
+                                       round(d$relative_count,2), "%)")
+               }else{ #with grouping
+                 groups=levels(as.factor(r$d3[,"treatment"]))
+                 n_levels=length(groups)
+                 d=data.frame(detected_n=rep(0:detmax,each=n_levels),
+                                    treatment=rep(groups,detmax+1),
+                                    count=rep(NA,n_levels*(detmax+1)))
+                 for(j in 1:n_levels){
+                   id=r$d3[r$d3[,"treatment"]==groups[j],"sampleID"]
+                   d[d$treatment==groups[j],"count"]=
+                     sapply(0:detmax, function(value) {
+                       sum(apply(r$d_detected[, id], 1, function(x) sum(x == value)))
+                     })
+                 }
+                 d=d %>%
+                   group_by(treatment) %>%
+                   mutate(relative_count = count/sum(count)*100)
+                 d$tooltip=paste0("Treatment group ",d$treatment,": ",
+                                        d$detected_n," detected: ",d$count," (",
+                                        round(d$relative_count,2), "%)")
+               }
+               d
+             }, #ag_bar_1 close
              NULL)
     }) #dTOplot close
 
@@ -271,7 +339,7 @@ mod_plot_server <- function(id,plot_type,r){
                                                                  round(after_stat(xmin),2),
                                                                  ",",round(after_stat(xmax),2),
                                                                  "] \ncount: ",after_stat(count))),
-                                              fill="lightblue",color="black",
+                                              fill=input$binfill,color=input$bincol,
                                               alpha=input$alpha,
                                               binwidth=input$binwidth)+
                    theme_classic()
@@ -280,7 +348,7 @@ mod_plot_server <- function(id,plot_type,r){
                    geom_histogram_interactive(aes(tooltip=paste0("Bin range: [",
                                                                  round(after_stat(xmin),2),
                                                                  ",",round(after_stat(xmax),2),"]")),
-                                              alpha=input$alpha,color="black",
+                                              alpha=input$alpha,color=input$bincol,
                                               position="identity",
                                               binwidth=input$binwidth)+
                    theme_classic()+
@@ -371,7 +439,7 @@ mod_plot_server <- function(id,plot_type,r){
                                                                  round(after_stat(xmin),2),
                                                                  ",",round(after_stat(xmax),2),
                                                                  "] \ncount: ",after_stat(count))),
-                                              fill="lightblue",color="black",
+                                              fill=input$binfill,color=input$bincol,
                                               alpha=input$alpha,
                                               binwidth=input$binwidth)+
                    theme_classic()
@@ -380,7 +448,7 @@ mod_plot_server <- function(id,plot_type,r){
                    geom_histogram_interactive(aes(tooltip=paste0("Bin range: [",
                                                                  round(after_stat(xmin),2),
                                                                  ",",round(after_stat(xmax),2),"]")),
-                                              alpha=input$alpha,color="black",
+                                              alpha=input$alpha,color=input$bincol,
                                               position="identity",
                                               binwidth=input$binwidth)+
                    theme_classic()+
@@ -409,6 +477,42 @@ mod_plot_server <- function(id,plot_type,r){
                )
                x
              }, #ag_hist_1 close
+             "ag_bar_1"={
+               if(input$select_1=="without grouping"){ #without grouping
+                 ag_bar_1=ggplot(data=dTOplot(),aes(x=as.factor(detected_n),y=count,
+                                                    tooltip=tooltip,
+                                                    data_id=detected_n))+
+                   geom_col_interactive(fill=input$barfill,color=input$barcol)
+               }else{ #with grouping (by treatment)
+                 ag_bar_1=ggplot(data=dTOplot(),aes(x=as.factor(detected_n),y=count,
+                                                    fill=treatment,
+                                                    tooltip=tooltip,
+                                                    data_id=detected_n))+
+                   geom_col_interactive(color=input$barcol,position=position_dodge2())
+               }
+
+               ag_bar_1=ag_bar_1+
+                 xlab(input$xlab)+
+                 ylab(input$ylab)+
+                 theme_classic()+
+                 theme(
+                   axis.title = element_text(size=input$axis_title_size),
+                   axis.text = element_text(size=input$axis_text_size),
+                   legend.title = element_text(size=input$legend_title_size),
+                   legend.text = element_text(size=input$legend_text_size)
+                 )
+
+               x=ggiraph::girafe(ggobj = ag_bar_1,
+                                 height_svg = input$height,width_svg = input$width,
+                                 options = list(
+                                   opts_hover(css = ""),
+                                   opts_zoom(max=4),
+                                   opts_selection(type = "none",css = NULL),
+                                   opts_toolbar(saveaspng=FALSE)
+                                 )
+               )
+               x
+             }, #ag_bar_1 close
              NULL) #switch close
 
     }) #plot close
@@ -419,7 +523,8 @@ mod_plot_server <- function(id,plot_type,r){
              "eda_box_1"={r$eda_box_1=plot()},
              "eda_hist_1"={r$eda_hist_1=plot()},
              "ag_box_1"={r$ag_box_1=plot()},
-             "ag_hist_1"={r$ag_hist_1=plot()}
+             "ag_hist_1"={r$ag_hist_1=plot()},
+             "ag_bar_1"={r$ag_bar_1=plot()}
              )
     })
 
@@ -457,7 +562,8 @@ mod_plot_server <- function(id,plot_type,r){
                  "eda_box_1"=includeMarkdown(app_sys("app/www/helper_eda_box_1.Rmd")),
                  "eda_hist_1"=includeMarkdown(app_sys("app/www/helper_eda_hist_1.Rmd")),
                  "ag_box_1"=includeMarkdown(app_sys("app/www/helper_eda_box_1.Rmd")),
-                 "ag_hist_1"=includeMarkdown(app_sys("app/www/helper_eda_hist_1.Rmd"))
+                 "ag_hist_1"=includeMarkdown(app_sys("app/www/helper_eda_hist_1.Rmd")),
+                 "ag_bar_1"=includeMarkdown(app_sys("app/www/helper_ag_bar_1.Rmd"))
           ),
           footer = modalButton("Close"),
           size="l",
@@ -469,6 +575,14 @@ mod_plot_server <- function(id,plot_type,r){
     #### Dropdown ----
     observeEvent(input$apply, {
       toggleDropdownButton("dropmenu", session)
+    })
+
+    observe({
+      if(input$select_1=="with grouping"){
+        shinyjs::hide("binfill")
+      }else{
+        shinyjs::show("binfill")
+      }
     })
 
     #### Alerts ----
