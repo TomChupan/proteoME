@@ -12,7 +12,12 @@
 mod_sidebar_ui <- function(id){
   ns <- NS(id)
   tagList(
-
+    tags$head(
+      tags$style(
+        HTML(".custom-h4 {margin-left: 10px;}"
+        )
+      )
+    ),
     conditionalPanel(condition = "output.tabset_value =='im'",ns=ns,
     mod_upload_ui(ns("upload_1"),
                   menuItem_label="Abundances",
@@ -42,6 +47,10 @@ mod_sidebar_ui <- function(id){
                      mod_normalize_ui(ns("normalize_1"))
     ), #conditionalPanel normalize close
     conditionalPanel(condition = "output.tabset_value =='ag'",ns=ns,
+                     h4("Before the aggregation:",class = "custom-h4"),
+                     mod_plot_ui(ns("ag_3"),
+                                 plot_type="ag_bar_1",
+                                 menuItem_label = "Barplot of number of detections"),
                      mod_aggregate_ui(ns("aggregate_1")),
                      mod_plot_ui(ns("ag_1"),
                                  plot_type="ag_box_1",
@@ -51,7 +60,10 @@ mod_sidebar_ui <- function(id){
                                  plot_type="ag_hist_1",
                                  menuItem_label = "Histogram of detected
                                  proteins in each sample")
-    ) #conditionalPanel normalize close
+    ), #conditionalPanel aggregate close
+    conditionalPanel(condition = "output.tabset_value =='f'",ns=ns,
+                     mod_filter_ui(ns("filter_1"))
+    ) #conditionalPanel filtering close
 
   ) #tagList close
 }
@@ -82,6 +94,8 @@ mod_sidebar_server <- function(id,r){
     mod_aggregate_server("aggregate_1",r=r)
     mod_plot_server("ag_1",plot_type="ag_box_1",r=r)
     mod_plot_server("ag_2",plot_type="ag_hist_1",r=r)
+    mod_plot_server("ag_3",plot_type="ag_bar_1",r=r)
+    mod_filter_server("filter_1",r=r)
 
   })
 }
