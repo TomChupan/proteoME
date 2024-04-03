@@ -17,16 +17,28 @@ mod_aggregate_ui <- function(id){
   ns <- NS(id)
   tagList(
     tags$head(
-      tags$style(".button {background-color:#90EE90;}")
+      tags$style(".button {background-color:#90EE90;}
+                  .custom-h4 {margin-left: 10px;}")
     ),
     sidebarMenu(
+      menuItem(text="Heatmap of detections within sample",
+               startExpanded = F,
+               #br(),
+               #HTML("What does this plot show",as.character(
+               #  actionLink(inputId = ns("help"),
+               #             label = "",
+               #             icon = icon("circle-question")))
+               #),
+               actionButton(ns("heatmap"),"Render heatmap",icon = icon("play"))
+               ),
+      h4("Aggregation process:",class="custom-h4"),
       menuItem(text = "Aggregate dataset",
                startExpanded = T,
                selectInput(ns("method"),"Aggregate by:",
                            choices = c("mean of runs"="mean",
                                        "median of runs"="median"),multiple = F),
-               numericInput(ns("atleast"),"Include into sample if protein was quantified in at least __ % of replicates:",
-                            value = 50,min = 1,max=100,step=1),
+               sliderInput(ns("atleast"),"Include into sample if protein was quantified in at least __ % of replicates:",
+                            value = 50,min = 0,max=100,step=10),
                actionButton(ns("aggregate"),"Aggregate"),
                shinyjs::hidden(
                  actionButton(ns("aggcheck"),"Aggregated",class="button",
@@ -61,12 +73,18 @@ mod_aggregate_server <- function(id,r){
       r$agg_method=input$method
     })
 
+    observeEvent(input$heatmap,{
+      r$render_heatmap=ifelse(is.null(r$render_heatmap),1,r$render_heatmap+1)
+    })
+
     ####Aggregation process ----
 
     observeEvent(input$aggregate,{
       req(not_null(r$d1) & not_null(r$d2) & not_null(r$d3))
         ask_confirmation(inputId = "confirm",title = "Are you sure?",
-                         text = "Have you checked the post-aggregation form of the dataset in all available visualization tools? The previous form of the dataset (by runs) will be still available.",
+                         text = "Have you checked all available visualization tools in the
+                         'Before the agregation' section? The previous form of the dataset
+                         (by runs) will still be available.",
                          type = "info",cancelOnDismiss = T,
                          btn_labels = c("No, I'll think about it.","Yes, aggregate it!")
         )
@@ -78,6 +96,7 @@ mod_aggregate_server <- function(id,r){
                          method = input$method,
                          percent = input$atleast)
         r$aggregatedTF=TRUE
+        #long format:
         d=r$d4 %>%
           tidyr::pivot_longer(!Accession,names_to = "sampleID",values_to = "abundances")
         d$index=1:nrow(d)
@@ -99,7 +118,7 @@ mod_aggregate_server <- function(id,r){
     ####After aggregation ----
     observeEvent(input$aggcheck,{
       shinyalert(title = "Your dataset has already been aggregated!",
-                 text="If you want to change an aggregation method or parameters please click on the reset button below.",
+                 text="If you want to change the aggregation method or parameters please click on the reset button below.",
                  showConfirmButton = TRUE, type = "info")
     })
 
@@ -113,14 +132,26 @@ mod_aggregate_server <- function(id,r){
     })
 
     observeEvent(input$reconfirm,{
+      #Indicator:
       r$aggregatedTF=FALSE
+      r$filteredTF=FALSE
+      #Data:
       r$d4=NULL
       r$dAG_pivotlonger=NULL
-      shinyjs::show("aggregate")
-      shinyjs::hide("aggcheck")
-      shinyjs::hide("reset")
-      shinyjs::hide("download")
+      #Plots:
+      r$ag_box_1=NULL
+      r$ag_hist_1=NULL
     })
+
+    observe({
+      if(r$aggregatedTF==FALSE){
+        shinyjs::show("aggregate")
+        shinyjs::hide("aggcheck")
+        shinyjs::hide("reset")
+        shinyjs::hide("download")
+      }
+    })
+
 
     ####Download ----
     output$download = downloadHandler(
@@ -131,6 +162,19 @@ mod_aggregate_server <- function(id,r){
         write.csv(r$d4, file,row.names = F)
       }
     )
+
+    ####Helpers ----
+    #observeEvent(input$help,{
+    #  showModal(
+    #    modalDialog(
+    #      includeMarkdown(app_sys("app/www/helper_ag_heatmap_1.Rmd")),
+    #      footer = modalButton("Close"),
+    #      size="l",
+    #      easyClose = T
+    #    )
+    #  )
+    #})
+
 
   })
 }
