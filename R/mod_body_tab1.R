@@ -28,7 +28,7 @@ mod_body_tab1_ui <- function(id,box_title="Your title.",data_type=c(1,2,3,4)){
 
         box(
           width=switch(data_type,8,6,6,8),height = '30%',title = box_title,
-          collapsible = T,status="primary", #just for CSS
+          collapsible = ifelse(data_type %in% c(1,4),F,T),status="primary", #just for CSS
            DTOutput(ns("tab")),br()
         ), #box close
         if(data_type %in% c(1,4)){
@@ -37,7 +37,10 @@ mod_body_tab1_ui <- function(id,box_title="Your title.",data_type=c(1,2,3,4)){
           if(data_type==1){
           valueBoxOutput(ns("n_runs"),width = 12)
             },
-          valueBoxOutput(ns("n_samples"),width = 12)
+          valueBoxOutput(ns("n_samples"),width = 12),
+          if(data_type==4){
+            valueBoxOutput(ns("empty_rows"),width = 12)
+          }
           ) #column close
           } #if close
 
@@ -71,7 +74,8 @@ mod_body_tab1_server <- function(id,
              r$d1,
              r$d2,
              r$d3,
-             r$d4)
+             r$d4
+             )
     })
 
     output$tab=renderDT({
@@ -132,6 +136,16 @@ mod_body_tab1_server <- function(id,
       }
 
     }) #renderValueBox close
+
+    output$empty_rows=renderValueBox({
+      if(is.null(r$d4)){
+        valueBox("Not aggregated","Number of empty rows (not detected proteins)",icon=icon("xmark"))
+      }else{
+        valueBox(sum(apply(r$d4[,-1],1,function(x) sum(is.na(x)))==(ncol(r$d4)-1)),"Number of not empty rows (not detected proteins)",icon=icon("xmark"),color="red")
+      }
+
+    }) #renderValueBox close
+
 
   }) #moduleServer close
 }
