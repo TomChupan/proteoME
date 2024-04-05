@@ -2,7 +2,7 @@
 % Please edit documentation in R/fct_proteoFI.R
 \name{proteoFI}
 \alias{proteoFI}
-\title{proteoAG}
+\title{proteoFI}
 \usage{
 proteoFI(
   data_aggreg,
@@ -36,8 +36,4 @@ A data frame with the filtered abundances.
 \description{
 A function for filtering the abundances data (its rows with proteins)
 based on NA's.
-}
-\examples{
-d_filtered=proteoFI(data_example,ann_sample_example,percent=30,method="onegroup")
-
 }
