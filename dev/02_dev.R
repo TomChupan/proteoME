@@ -74,6 +74,7 @@ usethis::use_package("ComplexHeatmap")
 usethis::use_package("viridis")
 usethis::use_package("shinyscreenshot")
 usethis::use_package("naniar")
+usethis::use_package("grid")
 
 ## Check if you haven't missed anything:
 # This function will read all the scripts in the R/ folder and
