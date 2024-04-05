@@ -27,7 +27,7 @@ the 'sample level'.
 \examples{
 # Data to pivot longer format
 library(dplyr)
-pivot_longer=data_example \%>\%
+d=data_example \%>\%
 tidyr::pivot_longer(!Accession,names_to = "runID",values_to = "abundances")
 d$index=1:nrow(d)
 d=merge(d,ann_run_example[,c(1:2)],by="runID")
@@ -37,6 +37,6 @@ d=d[order(d$index),]
 d$runID=factor(d$runID,levels=names(data_example)[-1])
 d$sampleID=factor(d$sampleID,levels=ann_sample_example$sampleID)
 
-proteoAG(data,method="mean",percent=66)
+proteoAG(d,method="mean",percent=66)
 
 }
