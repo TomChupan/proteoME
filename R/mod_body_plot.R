@@ -21,7 +21,6 @@ mod_body_plot_ui <- function(id,box_title="Your title."){
       width=12,title = box_title,collapsible = T,
       collapsed = switch(box_title,
                          "Boxplot of abundances by runs"=F,
-                         "Barplot of number of detections"=F,
                          T),
       status="primary", #just for CSS
       girafeOutput(ns("plot"))

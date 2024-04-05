@@ -16,6 +16,7 @@
 #' @importFrom dplyr %>%
 #' @importFrom tidyr pivot_wider
 #' @importFrom viridis turbo
+#' @importFrom grid unit
 #' @importFrom shinyscreenshot screenshot
 #' @importFrom shinyjs show hide hidden
 
@@ -86,8 +87,11 @@ mod_body_aggregate_server <- function(id,r){
       detmax=max(detected()[,-1])
       colors=structure(c("white",viridis::turbo(detmax,direction = -1)),
                       names=as.character(c(0:detmax)))
+      #Splitting by group:
+      spl=merge(data.frame(sampleID=names(detected()[,-1])),
+                r$d3[,1:2],by="sampleID",sort = F)
       Heatmap(as.matrix(detected()[,-1]),cluster_rows = F,cluster_columns = F,
-              col = colors,
+              col = colors,column_split=spl$treatment,column_gap = grid::unit(0.5,"cm"),
               name = "Number of detections \nfor a protein within \none sample",
               right_annotation = row_ha())
     })

@@ -96,6 +96,8 @@ mod_filter_server <- function(id,r){
         shinyalert(title = "Your dataset has been successfully filtered!",
                    text="You can check the dataset via _______ on this tab or proceed to the following analysis steps.",
                    showConfirmButton = TRUE, type = "success")
+        shinyjs::hide("method")
+        shinyjs::hide("atleast")
         shinyjs::hide("filter")
         shinyjs::show("filcheck")
         shinyjs::show("download")
@@ -113,6 +115,8 @@ mod_filter_server <- function(id,r){
     #Reset on the ag tab -----
     observe({
       if(r$filteredTF==FALSE){
+        shinyjs::show("method")
+        shinyjs::show("atleast")
         shinyjs::show("filter")
         shinyjs::hide("filcheck")
         shinyjs::hide("download")

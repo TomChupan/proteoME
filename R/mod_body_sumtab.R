@@ -78,8 +78,8 @@ mod_body_sumtab_server <- function(id,validate_message,r){
     })
 
 
-    ####Datatables ----
-    ###Current dataset
+    ###Datatables ----
+    ##Current dataset
     output$sumtab_c=DT::renderDT({
       if(input$by_treatment){
         setDT(dTOsumtab_c())

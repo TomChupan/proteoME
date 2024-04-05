@@ -141,7 +141,7 @@ mod_body_tab1_server <- function(id,
       if(is.null(r$d4)){
         valueBox("Not aggregated","Number of empty rows (not detected proteins)",icon=icon("xmark"))
       }else{
-        valueBox(sum(apply(r$d4[,-1],1,function(x) sum(is.na(x)))==(ncol(r$d4)-1)),"Number of not empty rows (not detected proteins)",icon=icon("xmark"),color="red")
+        valueBox(sum(apply(r$d4[,-1],1,function(x) sum(is.na(x)))==(ncol(r$d4)-1)),"Number of empty rows (not detected proteins)",icon=icon("xmark"),color="red")
       }
 
     }) #renderValueBox close

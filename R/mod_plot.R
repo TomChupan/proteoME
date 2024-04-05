@@ -47,7 +47,6 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
       menuItem(text = menuItem_label,
                startExpanded = switch(plot_type,
                                       "eda_box_1"=T,
-                                      "ag_bar_1"=T,
                                       F),
                br(),
                HTML("What does this plot show",as.character(
@@ -115,7 +114,7 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
                    checkboxInput(ns("yzero"),"Start y-axis from zero",value=F),
                    checkboxInput(ns("notch"),"Notch (approx 95% CI for median)",
                                  value=F),
-                   checkboxInput(ns("xaxis"),"Remove x-axis text",value = F),
+                   checkboxInput(ns("xaxis"),"Remove x-axis text",value = T),
                    column(6,colourInput(ns("out_color"),"Outlier color",
                                         palette = "limited",value = "#000000")
                           ),

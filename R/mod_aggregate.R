@@ -18,7 +18,8 @@ mod_aggregate_ui <- function(id){
   tagList(
     tags$head(
       tags$style(".button {background-color:#90EE90;}
-                  .custom-h4 {margin-left: 10px;}")
+                  .custom-h4 {margin-left: 10px;}
+                 ")
     ),
     sidebarMenu(
       menuItem(text="Heatmap of detections within sample",
@@ -33,7 +34,7 @@ mod_aggregate_ui <- function(id){
                ),
       h4("Aggregation process:",class="custom-h4"),
       menuItem(text = "Aggregate dataset",
-               startExpanded = T,
+               startExpanded = F,
                selectInput(ns("method"),"Aggregate by:",
                            choices = c("mean of runs"="mean",
                                        "median of runs"="median"),multiple = F),
