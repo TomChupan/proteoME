@@ -122,12 +122,26 @@ observeEvent(r$edit_factors_button, {
             index=which(r$edit_table[,"Original_Levels"]==original)
             index=base::intersect(index,rows)
             r$d3[r$d3[,col]==original,col]=r$edit_table[index,"New_Levels"]
-            if(col=="treatment"){ #we need to change r$d_pivotlonger here
+            if(col=="treatment"){ #we need to change r$d_pivotlonger and r$dAG_pivotlonger here
+              r$d_pivotlonger=as.data.frame(r$d_pivotlonger)
               r$d_pivotlonger[r$d_pivotlonger[,col]==original,col]=r$edit_table[index,"New_Levels"]
+              if(not_null(r$dAG_pivotlonger)){
+                r$dAG_pivotlonger=as.data.frame(r$dAG_pivotlonger)
+                r$dAG_pivotlonger[r$dAG_pivotlonger[,col]==original,col]=r$edit_table[index,"New_Levels"]
+              }
             }
           }
+          #set factors in specified order:
           r$d3[,col]=factor(r$d3[,col],
                               levels = as.character(unlist(r$edit_table[rows,"New_Levels"]))[as.numeric(unlist(r$edit_table[rows,"New_Order"]))])
+          if(col=="treatment"){
+            r$d_pivotlonger[,col]=factor(r$d_pivotlonger[,col],
+                              levels = as.character(unlist(r$edit_table[rows,"New_Levels"]))[as.numeric(unlist(r$edit_table[rows,"New_Order"]))])
+            if(not_null(r$dAG_pivotlonger)){
+              r$dAG_pivotlonger[,col]=factor(r$dAG_pivotlonger[,col],
+                                           levels = as.character(unlist(r$edit_table[rows,"New_Levels"]))[as.numeric(unlist(r$edit_table[rows,"New_Order"]))])
+            }
+          }
         }
       }
 
