@@ -1,4 +1,4 @@
-#' proteoAG
+#' proteoFI
 #'
 #' @description A function for filtering the abundances data (its rows with proteins)
 #' based on NA's.
@@ -21,8 +21,6 @@
 #' protein is kept in the dataset when it is quantified in at least 'percent' %
 #' of samples within each treatment group.
 #'
-#' @examples
-#' d_filtered=proteoFI(data_example,ann_sample_example,percent=30,method="onegroup")
 #'
 #' @return A data frame with the filtered abundances.
 #'
