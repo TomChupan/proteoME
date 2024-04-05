@@ -14,14 +14,16 @@
 #'
 #' @importFrom viridis scale_fill_viridis
 #' @importFrom shinyscreenshot screenshot
-#' @importFrom shinyjs show hide
+#' @importFrom shinyjs show hide hidden
 #' @importFrom naniar gg_miss_fct gg_miss_case
 #' @importFrom ggplot2 theme theme_classic element_blank element_line element_text xlab ylab
 
 mod_body_filter_ui <- function(id,box_title="Your title."){
   ns <- NS(id)
   tagList(
-
+    tags$head(
+      tags$style(".custom-h4 {margin-left: 15px;}")
+    ),
     box(width = 12,title=box_title,collapsible = T,status="primary",
         h4(textOutput(ns("valueboxes_h4"))),
         fluidRow(
@@ -29,15 +31,26 @@ mod_body_filter_ui <- function(id,box_title="Your title."){
           valueBoxOutput(ns("toremove_proteins"),width=4),
           valueBoxOutput(ns("newn_proteins"),width=4)
         ), #fluidRow close
-        h4("Current version of the dataset:"),
-        column(6,plotOutput(ns("naplot1_c"),height="300px")),
-        column(6,plotOutput(ns("naplot2_c"),height="300px")),#"static" NA plots for the current version of dataset
-        br(),
-        h4(textOutput(ns("naplot_f_title"))),
-        column(6,plotOutput(ns("naplot1_f"),height="300px")),
-        column(6,plotOutput(ns("naplot2_f"),height="300px")),#reactive NA plots depending on the selectInput with methods
-        br()
-    )
+        fluidRow(id=ns("r1"),
+          h4("Current version of the dataset:",class="custom-h4"),
+          column(6,plotOutput(ns("naplot1_c"),height="300px")),
+          column(6,plotOutput(ns("naplot2_c"),height="300px")),#"static" NA plots for the current version of dataset
+          br()
+        ), #fluidRow close
+        shinyjs::hidden(
+          actionButton(ns("download_c"),"Download missingness plots (current version) (.png)")
+        ),
+        fluidRow(id=ns("r2"),
+          h4(textOutput(ns("naplot_f_title")),class="custom-h4"),
+          column(6,plotOutput(ns("naplot1_f"),height="300px")),
+          column(6,plotOutput(ns("naplot2_f"),height="300px")),#reactive NA plots depending on the selectInput with methods
+          br()
+        ), #fluidRow close
+        shinyjs::hidden(
+          actionButton(ns("download_f"),"Download missingness plots ('see the effect') (.png)")
+        )
+    ), #box close
+
 
 
   ) #tagList close
@@ -141,11 +154,15 @@ mod_body_filter_server <- function(id,validate_message,
     ##Current dataset
     output$naplot1_c=renderPlot({
       validate(need(not_null(r$d4),validate_message))
+      suppressMessages(
       dTOplot_c() |> naniar::gg_miss_fct(fct = treatment) +
         theme(axis.text.y = element_blank(),
-              axis.text.x = element_text(angle=0,hjust = 1))+
+              axis.text.x = element_text(angle=0,hjust = 1),
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank())+
         ylab("Proteins")+xlab("Treatment group")+
         viridis::scale_fill_viridis(name = "% of NA's")
+      )
     }) #renderPlot close
 
     output$naplot2_c=renderPlot({
@@ -170,11 +187,15 @@ mod_body_filter_server <- function(id,validate_message,
       if(not_null(interactive_filter())){
         validate(need(nrow(interactive_filter())!=0,validate_message2))
       }
-      dTOplot_f() |> naniar::gg_miss_fct(fct = treatment) +
+      suppressMessages(
+        dTOplot_f() |> naniar::gg_miss_fct(fct = treatment) +
         theme(axis.text.y = element_blank(),
-              axis.text.x = element_text(angle=0,hjust = 1))+
+              axis.text.x = element_text(angle=0,hjust = 1),
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank())+
         ylab("Proteins")+xlab("Treatment group")+
         viridis::scale_fill_viridis(name = "% of NA's")
+      )
     }) #renderPlot close
 
     output$naplot2_f=renderPlot({
@@ -203,18 +224,25 @@ mod_body_filter_server <- function(id,validate_message,
     })
 
 
-    ##### Screenshot ----
-    #observe({
-    #  if(not_null(r$ag_heatmap_1)){
-    #    shinyjs::show("download")
-    #  }else{
-    #    shinyjs::hide("download")
-    #  }
-    #})
+    ##### Screenshots ----
+    observe({
+      if(r$aggregatedTF==TRUE){
+        shinyjs::show("download_c")
+        shinyjs::show("download_f")
+      }else{
+        shinyjs::hide("download_c")
+        shinyjs::hide("download_f")
+      }
+    })
 
-    #observeEvent(input$download,{
-    #  shinyscreenshot::screenshot(id="heatbox",filename = "heatmap",scale=2)
-    #})
+    observeEvent(input$download_c,{
+      shinyscreenshot::screenshot(id="r1",filename = "naplots_c",scale=1.5)
+    })
+
+    observeEvent(input$download_f,{
+      shinyscreenshot::screenshot(id="r2",filename = "naplots_f",scale=1.5)
+    })
+
 
 
 
