@@ -24,6 +24,7 @@
 #' @importFrom vroom vroom
 #' @importFrom shinyjs hidden hide show reset
 #' @importFrom tidyr pivot_longer
+#' @importFrom shinyWidgets ask_confirmation confirmSweetAlert
 mod_upload_ui <- function(id,menuItem_label=c("Abundances","Annotations (run)",
                           "Annotations (sample)"),fileInput_label="Your label."){
   ns <- NS(id)
@@ -54,7 +55,8 @@ mod_upload_ui <- function(id,menuItem_label=c("Abundances","Annotations (run)",
                if(menuItem_label=="Abundances"){
                  shinyjs::hidden(
                    checkboxGroupInput(inputId=ns("data_char"),label="Uploaded data are:",
-                                      choices = c("normalized","imputed"))
+                                      choices = c("normalized","imputed")),
+                   actionButton(inputId = ns("zerosTOna"),label="Replace zeros with NA's")
                    )
                },
                if(menuItem_label=="Annotations (sample)"){
@@ -139,6 +141,8 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
 
 
       )
+      #to data.frame:
+      r[[paste0("d",data_type)]]=as.data.frame(r[[paste0("d",data_type)]])
 
     }) #observeEvent close
 
@@ -191,6 +195,7 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
       }
       r$aggregatedTF=FALSE
       r$filteredTF=FALSE
+      r$imputedTF=FALSE
     })
 
     #Show/hide things on the sidebar when uploading/reseting
@@ -198,7 +203,12 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
       shinyjs::show("download")
       shinyjs::show("reset")
       switch(data_type,
-             shinyjs::show("data_char"),
+             {shinyjs::show("data_char")
+               req(not_null(r$d1))
+               if(sum(r$d1[,-1]==0,na.rm=T)>0){
+              shinyjs::show("zerosTOna")
+               }
+              },
              NULL,
              shinyjs::show("edit_factors")
       )
@@ -206,12 +216,24 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
       shinyjs::hide("use_example_data")
     },ignoreInit = T)
 
+    #hide 'replace zeros by NA's' after data transformation, normalization etc.:
+    observe({
+      if(r$transformedTF==T | r$normalizedTF==T | r$aggregatedTF==T|
+         r$filteredTF==T | r$imputedTF==T){
+        shinyjs::hide("zerosTOna")
+      }
+    })
+
+
     observeEvent(input$reset,{
       shinyjs::hide("download")
       shinyjs::hide("reset")
       switch(data_type,
              {updateCheckboxGroupInput(session,inputId="data_char",selected = character(0))
              shinyjs::hide("data_char")
+             if(sum(r$d1[,-1]==0,na.rm=T)>0){
+             shinyjs::hide("zerosTOna")
+             }
              r$data_char=NULL
              },
              NULL,
@@ -222,10 +244,60 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
       shinyjs::show("use_example_data")
     })
 
-    ###Data characteristics - checkbox
+    ###Data characteristics - checkbox -----
     observe({
       r$data_char=input$data_char
+      if("normalized"%in%input$data_char){
+        r$normalizedTF=TRUE
+      }else{
+        r$normalizedTF=FALSE
+      }
+      if("imputed"%in%input$data_char){
+        r$filteredTF=TRUE
+        r$imputedTF=TRUE
+      }else{
+        r$filteredTF=FALSE
+        r$imputedTF=FALSE
+      }
     })
+
+    observe({
+      if(r$turnoff_data_char==TRUE){
+        hide("data_char")
+      }
+    })
+
+    #### Zeros to NA's -----
+    observeEvent(input$zerosTOna,{
+      ask_confirmation(inputId = "confirm",title = "Are you sure?",
+                       text = "All zeros will be replaced by 'NA'. The previous form of
+                       the dataset will be irretrievably lost! Make sure you have downloaded it
+                       or no longer need it.",
+                       type = "info",cancelOnDismiss = T,
+                       btn_labels = c("No, keep zeros in the data.","Yes, replace them all!")
+      )
+    })
+
+    observeEvent(input$confirm,{
+      if(isTRUE(input$confirm)){
+        r$d1[r$d1==0]<-NA
+        if(not_null(r$d_pivotlonger)){
+        zeroindL=which(r$d_pivotlonger$abundances==0)
+        r$d_pivotlonger[zeroindL,"abundances"]=NA
+        }
+
+        #reset:
+        #Plots
+        r$eda_box_1=NULL
+        r$eda_hist_1=NULL
+        r$ag_heatmap_1=NULL
+        r$ag_bar_1=NULL
+
+        shinyalert(title = "You have replaced all zeros with 'NA' value.",
+                   showConfirmButton = TRUE, type = "success")
+        shinyjs::hide("zerosTOna")
+      }
+    }) #observeEvent confirm close
 
 
     ###Edit factor vars/levels/colors----
