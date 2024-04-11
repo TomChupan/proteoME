@@ -8,6 +8,7 @@
 #' @importFrom shinybusy add_busy_spinner
 #' @importFrom shinyjs useShinyjs
 #' @importFrom shinyWidgets useSweetAlert
+#' @importFrom shinyFeedback useShinyFeedback
 #' @noRd
 app_ui <- function(request) {
   tagList(
@@ -57,6 +58,7 @@ golem_add_external_resources <- function() {
     # Add here other external resources
     # for example, you can add shinyalert::useShinyalert()
     useShinyjs(),
-    useSweetAlert()
+    useSweetAlert(),
+    useShinyFeedback()
   )
 }
