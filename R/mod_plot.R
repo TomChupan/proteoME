@@ -273,7 +273,7 @@ mod_plot_server <- function(id,plot_type,r){
 
     ####Plot ----
 
-    plot=eventReactive(input$render | input$apply,{
+    splot=eventReactive(input$render | input$apply,{
       req(not_null(dTOplot()))
       switch(plot_type,
              "eda_box_1"={
@@ -320,16 +320,7 @@ mod_plot_server <- function(id,plot_type,r){
                          axis.ticks.x=element_blank())
                }
 
-               x=ggiraph::girafe(ggobj = eda_box_1,
-                                 height_svg = input$height,width_svg = input$width,
-                                 options = list(
-                                   opts_hover(css = ""),
-                                   opts_zoom(max=4) ,
-                                   opts_selection(type = "none",css = NULL),
-                                   opts_toolbar(saveaspng=FALSE)
-                                 )
-               )
-               x
+               eda_box_1
              }, #eda_box_1 close
              "eda_hist_1"={
                if(input$select_1=="without grouping"){ #without grouping
@@ -365,16 +356,8 @@ mod_plot_server <- function(id,plot_type,r){
                    legend.text = element_text(size=input$legend_text_size)
                  )+ylab(input$ylab)
 
-               x=ggiraph::girafe(ggobj = eda_hist_1,
-                                 height_svg = input$height,width_svg = input$width,
-                                 options = list(
-                                   opts_hover(css = ""),
-                                   opts_zoom(max=4),
-                                   opts_selection(type = "none",css = NULL),
-                                   opts_toolbar(saveaspng=FALSE)
-                                 )
-               )
-               x
+
+               eda_hist_1
              }, #eda_hist_1 close
              "ag_box_1"={
                ag_box_1=ggplot(data=dTOplot(),aes(x=sampleID,y=abundances,
@@ -420,16 +403,8 @@ mod_plot_server <- function(id,plot_type,r){
                          axis.ticks.x=element_blank())
                }
 
-               x=ggiraph::girafe(ggobj = ag_box_1,
-                                 height_svg = input$height,width_svg = input$width,
-                                 options = list(
-                                   opts_hover(css = ""),
-                                   opts_zoom(max=4) ,
-                                   opts_selection(type = "none",css = NULL),
-                                   opts_toolbar(saveaspng=FALSE)
-                                 )
-               )
-               x
+
+               ag_box_1
              }, #ag_box_1 close
              "ag_hist_1"={
                if(input$select_1=="without grouping"){ #without grouping
@@ -465,16 +440,8 @@ mod_plot_server <- function(id,plot_type,r){
                    legend.text = element_text(size=input$legend_text_size)
                  )+ylab(input$ylab)
 
-               x=ggiraph::girafe(ggobj = ag_hist_1,
-                                 height_svg = input$height,width_svg = input$width,
-                                 options = list(
-                                   opts_hover(css = ""),
-                                   opts_zoom(max=4),
-                                   opts_selection(type = "none",css = NULL),
-                                   opts_toolbar(saveaspng=FALSE)
-                                 )
-               )
-               x
+
+               ag_hist_1
              }, #ag_hist_1 close
              "ag_bar_1"={
                if(input$select_1=="without grouping"){ #without grouping
@@ -501,20 +468,26 @@ mod_plot_server <- function(id,plot_type,r){
                    legend.text = element_text(size=input$legend_text_size)
                  )
 
-               x=ggiraph::girafe(ggobj = ag_bar_1,
-                                 height_svg = input$height,width_svg = input$width,
-                                 options = list(
-                                   opts_hover(css = ""),
-                                   opts_zoom(max=4),
-                                   opts_selection(type = "none",css = NULL),
-                                   opts_toolbar(saveaspng=FALSE)
-                                 )
-               )
-               x
+
+               ag_bar_1
              }, #ag_bar_1 close
              NULL) #switch close
 
     }) #plot close
+
+    plot=eventReactive(input$render | input$apply,{
+      req(not_null(splot()))
+      x=ggiraph::girafe(ggobj = splot(),
+                        height_svg = input$height,width_svg = input$width,
+                        options = list(
+                          opts_hover(css = ""),
+                          opts_zoom(max=4),
+                          opts_selection(type = "none",css = NULL),
+                          opts_toolbar(saveaspng=FALSE)
+                        )
+      )
+      x
+    })
 
     observeEvent(input$render | input$apply,{
       req(plot())
@@ -537,7 +510,7 @@ mod_plot_server <- function(id,plot_type,r){
       },
 
       content = function(file) {
-        ggsave(file,height=input$height,width=input$width)
+        ggsave(file,splot(),height=input$height,width=input$width)
       }
     )
 
