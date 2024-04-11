@@ -87,7 +87,7 @@ mod_filter_server <- function(id,r){
       if(isTRUE(input$confirm)){
         r$d4=proteoFI(r$d4,r$d3,input$atleast,input$method)
         r$filteredTF=TRUE
-
+        r$turnoff_data_char=TRUE
         #long format:
         d=r$dAG_pivotlonger
         d=d[which(d$Accession%in%unlist(r$d4[,"Accession"])),]
@@ -120,6 +120,16 @@ mod_filter_server <- function(id,r){
         shinyjs::show("filter")
         shinyjs::hide("filcheck")
         shinyjs::hide("download")
+      }
+    })
+
+    #Imputed from the start ----
+    observe({
+      if("imputed"%in%r$data_char){
+        shinyjs::hide("method")
+        shinyjs::hide("atleast")
+        shinyjs::hide("filter")
+        shinyjs::show("filcheck")
       }
     })
 

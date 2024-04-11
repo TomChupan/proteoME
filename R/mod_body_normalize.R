@@ -118,7 +118,7 @@ mod_body_normalize_server <- function(id,validate_message,r){
 }
 
 ## To be copied in the UI
-# mod_body_normalize_ui("body_normalize_1")
+#
 
 ## To be copied in the server
-# mod_body_normalize_server("body_normalize_1")
+#

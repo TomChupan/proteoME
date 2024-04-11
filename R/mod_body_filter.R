@@ -228,12 +228,19 @@ mod_body_filter_server <- function(id,validate_message,
     observe({
       if(r$aggregatedTF==TRUE){
         shinyjs::show("download_c")
-        shinyjs::show("download_f")
       }else{
         shinyjs::hide("download_c")
+      }
+    })
+
+    observe({
+      if(r$aggregatedTF==TRUE & r$filteredTF==FALSE){
+        shinyjs::show("download_f")
+      }else{
         shinyjs::hide("download_f")
       }
     })
+
 
     observeEvent(input$download_c,{
       shinyscreenshot::screenshot(id="r1",filename = "naplots_c",scale=1.5)

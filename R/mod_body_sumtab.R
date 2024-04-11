@@ -120,6 +120,7 @@ mod_body_sumtab_server <- function(id,validate_message,r){
 
     output$sumtab_t=DT::renderDT({
       req(r$transformedTF==FALSE)
+      req(all(r$d1[,-1]>0,na.rm = T) | r$trans_method!="log2(x)")
       if(input$by_treatment){
         setDT(dTOsumtab_t())
         DT::datatable(dTOsumtab_t()[,as.list(Tsummary(abundances)),

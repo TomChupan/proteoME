@@ -8,7 +8,7 @@
 #' @rdname mod_transform
 #'
 #' @export
-#' @importFrom shinyWidgets ask_confirmation confirmSweetAlert
+#' @importFrom shinyWidgets ask_confirmation
 #' @importFrom shinyjs hide hidden show
 mod_transform_ui <- function(id){
   ns <- NS(id)

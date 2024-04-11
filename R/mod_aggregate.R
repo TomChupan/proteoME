@@ -109,6 +109,8 @@ mod_aggregate_server <- function(id,r){
         shinyalert(title = "Your dataset has been successfully aggregated!",
                    text="You can check the dataset via available visualization tools on this tab or proceed to the following analysis steps.",
                    showConfirmButton = TRUE, type = "success")
+        shinyjs::hide("method")
+        shinyjs::hide("atleast")
         shinyjs::hide("aggregate")
         shinyjs::show("aggcheck")
         shinyjs::show("reset")
@@ -123,7 +125,7 @@ mod_aggregate_server <- function(id,r){
                  showConfirmButton = TRUE, type = "info")
     })
 
-    ####Resets
+    ####Resets -----
     observeEvent(input$reset,{
       ask_confirmation(inputId = "reconfirm",title = "Are you sure?",
                        text = "You may lose any filtering, imputation or analysis steps. Make sure you have downloaded the current version of the aggregated dataset before re-aggregating.",
@@ -136,6 +138,7 @@ mod_aggregate_server <- function(id,r){
       #Indicator:
       r$aggregatedTF=FALSE
       r$filteredTF=FALSE
+      r$imputedTF=FALSE
       #Data:
       r$d4=NULL
       r$dAG_pivotlonger=NULL
@@ -146,6 +149,8 @@ mod_aggregate_server <- function(id,r){
 
     observe({
       if(r$aggregatedTF==FALSE){
+        shinyjs::show("method")
+        shinyjs::show("atleast")
         shinyjs::show("aggregate")
         shinyjs::hide("aggcheck")
         shinyjs::hide("reset")

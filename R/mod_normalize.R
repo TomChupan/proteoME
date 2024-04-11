@@ -8,7 +8,7 @@
 #' @rdname mod_normalize
 #'
 #' @export
-#' @importFrom shinyWidgets ask_confirmation confirmSweetAlert
+#' @importFrom shinyWidgets ask_confirmation
 #' @importFrom shinyjs hide hidden show
 #' @importFrom preprocessCore normalize.quantiles
 #' @importFrom MBQN mbqn
@@ -83,6 +83,7 @@ mod_normalize_server <- function(id,r){
         r$eda_box_1=NULL
         r$eda_hist_1=NULL
         r$normalizedTF=TRUE
+        r$turnoff_data_char=TRUE
         shinyalert(title = "Your dataset has been successfully normalized!",
                    text="You can check the dataset on the previous tabs or proceed to the following analysis steps in a few seconds after closing this window (we need to recalculate something :-).",
                    showConfirmButton = TRUE, type = "success")
@@ -98,11 +99,19 @@ mod_normalize_server <- function(id,r){
                  showConfirmButton = TRUE, type = "info")
     })
 
-    ####Resets
+    ####Resets----
     observe({
       if(r$normalizedTF==FALSE){
         shinyjs::show("normalize")
         shinyjs::hide("normcheck")
+      }
+    })
+
+    ####Normalized from the start ----
+    observe({
+      if("normalized"%in%r$data_char){
+        shinyjs::hide("normalize")
+        shinyjs::show("normcheck")
       }
     })
 
