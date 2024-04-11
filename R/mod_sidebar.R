@@ -63,7 +63,13 @@ mod_sidebar_ui <- function(id){
     ), #conditionalPanel aggregate close
     conditionalPanel(condition = "output.tabset_value =='f'",ns=ns,
                      mod_filter_ui(ns("filter_1"))
-    ) #conditionalPanel filtering close
+    ), #conditionalPanel filtering close
+    conditionalPanel(condition = "output.tabset_value =='na'",ns=ns,
+                     mod_impute_ui(ns("impute_1"))
+    ), #conditionalPanel imputation close
+    conditionalPanel(condition = "output.tabset_value =='an'",ns=ns,
+                     mod_analysis_ui(ns("analysis_1"))
+    ) #conditionalPanel analysis close
 
   ) #tagList close
 }
@@ -96,6 +102,8 @@ mod_sidebar_server <- function(id,r){
     mod_plot_server("ag_2",plot_type="ag_hist_1",r=r)
     mod_plot_server("ag_3",plot_type="ag_bar_1",r=r)
     mod_filter_server("filter_1",r=r)
+    mod_impute_server("impute_1",r=r)
+    mod_analysis_server("analysis_1",r=r)
 
   })
 }

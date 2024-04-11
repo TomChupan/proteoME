@@ -103,8 +103,14 @@ mod_body_ui <- function(id){
                            ) #fluidRow close
                          ) #fluidPage close
                 ), #tabPanel Filtering close
-                tabPanel("Missing values handling",value = "na"
-                         ), #tabPanel Missing values handling close
+                tabPanel("Imputation",value = "na",
+                         fluidPage(
+                           fluidRow(
+                             mod_body_impute_ui(ns("body_impute_1"),
+                                                box_title="Heatmap of protein abundances")
+                           ) #fluidRow close
+                         ) #fluidPage close
+                         ), #tabPanel Imputation close
                 tabPanel("Analysis",value = "an"
                 ), #tabPanel Analysis close
                 tabPanel("Log",value = "log"
@@ -183,10 +189,14 @@ mod_body_server <- function(id,r){
                            validate_message="Please aggregate your data with abundances.",
                            validate_message2="Please ease your filtering requirements - you would filter out all rows with current parameter values.",
                            r=r)
+    #####Tab 7 - Imputation -----
+    mod_body_impute_server("body_impute_1",
+                           validate_message="Please aggregate your data with abundances.",
+                           r=r)
 
-    #####Modals when switchin tabs
+    #####Modals when switchin tabs ----
     observeEvent(input$tabs, {
-      if (input$tabs == "na" && "imputed"%in% r$data_char) {
+      if (input$tabs %in% c("f","na") && "imputed"%in% r$data_char) {
         showModal(modalDialog(
           title = "Reminder",
           "You've marked your abundances data as imputed. You probably won't need to use this tab.",
