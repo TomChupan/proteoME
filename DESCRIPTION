@@ -14,6 +14,7 @@ BugReports: https://github.com/TomChupan/proteoME/issues
 Depends: 
     R (>= 2.10)
 Imports: 
+    amap,
     colourpicker,
     ComplexHeatmap,
     config (>= 0.3.1),
@@ -26,9 +27,12 @@ Imports:
     golem (>= 0.4.1),
     grid,
     htmlwidgets,
+    ChemoSpec,
+    impute,
     magrittr,
     markdown,
     MBQN,
+    missForest,
     naniar,
     plotly,
     preprocessCore,
@@ -36,9 +40,11 @@ Imports:
     shinyalert,
     shinybusy,
     shinydashboard,
+    shinyFeedback,
     shinyjs,
     shinyscreenshot,
     shinyWidgets,
+    stringr,
     tidyr,
     tools,
     utils,
