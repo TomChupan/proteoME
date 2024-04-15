@@ -140,7 +140,7 @@ mod_impute_server <- function(id,r){
         r$dAG_pivotlonger[,"abundances"]=c(t(as.matrix(r$d4[,-1])))
 
         shinyalert(title = "Your dataset has been successfully imputed!",
-                   text="You can check the dataset via _______ on this tab or proceed to the following analysis step.",
+                   text="You can check the dataset via heatmap on this tab or proceed to the following analysis step.",
                    showConfirmButton = TRUE, type = "success")
         shinyjs::hide("method")
         shinyjs::hide("inputspec")
