@@ -14,8 +14,7 @@ mod_analysis_server(id, r)
 
 \item{r}{A 'reactiveValues()' list containing (among other objects) data set with
 abundances. This is analysed here with one of the available methods.
-A logical indicator (analysed or not?) is toggled here.
-Analysis method _______ are saved to r to be used in other modules.}
+A logical indicator (analysed or not?) is toggled here.}
 }
 \description{
 A shiny Module containing sidebar content for data analysis

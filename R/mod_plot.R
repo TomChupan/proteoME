@@ -20,15 +20,17 @@
 #'
 #' @export
 #'
-#' @importFrom dplyr %>%
-#' @importFrom ggplot2 ggplot after_stat theme_classic theme_minimal aes ggsave ylab xlab theme element_text ylim scale_y_continuous element_line element_blank position_dodge2
-#' @importFrom ggiraph geom_boxplot_interactive girafe opts_hover opts_zoom opts_toolbar geom_histogram_interactive opts_selection geom_col_interactive
+#' @importFrom dplyr %>% mutate if_else
+#' @importFrom ggplot2 ggplot after_stat theme_classic theme_minimal aes ggsave ylab xlab theme element_text ylim scale_y_continuous element_line element_blank position_dodge2 geom_hline geom_vline
+#' @importFrom ggiraph geom_boxplot_interactive girafe opts_hover opts_zoom opts_toolbar geom_histogram_interactive opts_selection geom_col_interactive geom_point_interactive
 #' @importFrom htmlwidgets saveWidget
 #' @importFrom plotly as_widget
 #' @importFrom shinyWidgets dropdownButton toggleDropdownButton
 #' @importFrom colourpicker colourInput
-#' @importFrom shinyjs hide
+#' @importFrom shinyjs hide show toggle
 #' @importFrom tidyr pivot_wider
+#' @importFrom utils combn
+#' @importFrom ggrepel geom_text_repel
 mod_plot_ui <- function(id,plot_type,menuItem_label){
   ns <- NS(id)
   tagList(
@@ -59,7 +61,8 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
                                         "eda_box_1"="Select the form of abundances:",
                                         "eda_hist_1"="Select the grouping option:",
                                         "ag_hist_1"="Select the grouping option:",
-                                        "ag_bar_1"="Select the grouping option",
+                                        "ag_bar_1"="Select the grouping option:",
+                                        "an_volcano_1"="Select the type of p-value:",
                                         NULL),
                            choices = switch(plot_type,
                                             "eda_box_1"=c("just the values"="original",
@@ -68,8 +71,11 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
                                             "eda_hist_1"=c("without grouping","with grouping"),
                                             "ag_hist_1"=c("without grouping","with grouping"),
                                             "ag_bar_1"=c("without grouping","with grouping"),
+                                            "an_volcano_1"=c("original p-value"="original",
+                                                             "adjusted p-value"="adjusted"),
                                             NULL),multiple = F
                ), #selectInput close
+               uiOutput(ns("input_select_2")),
 
       ####Dropdown button ----
                dropdownButton(
@@ -84,29 +90,17 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
                                          min=1,max=50,value=12,step=1),
                           numericInput(ns("legend_text_size"),"Legend text size",
                                        min=1,max=50,value=12,step=1),
-                          textInput(ns("xlab"),label = "X-axis label",
-                                    value = switch(plot_type,
-                                                   "eda_box_1"="runID",
-                                                   "eda_hist_1"="number of detected proteins in each run",
-                                                   "ag_box_1"="sampleID",
-                                                   "ag_hist_1"="number of detected proteins in each sample",
-                                                   "ag_bar_1"="number of detections of one protein within one sample"
-                                                   ))
-                          ),
+                          uiOutput(ns("input_xlab"))
+                   ),
                    column(6,numericInput(ns("width"),"Width (inches)",min=1,
                                          max=30,value=9,step=1),
                           numericInput(ns("axis_title_size"),"Axis title size",
                                          min=1,max=50,value=16,step=1),
+                          if(plot_type!="an_volcano_1"){
                           numericInput(ns("legend_title_size"),"Legend title size",
-                                       min=1,max=50,value=16,step=1),
-                          textInput(ns("ylab"),label = "Y-axis label",
-                                    value = switch(plot_type,
-                                                   "eda_box_1"="abundances",
-                                                   "eda_hist_1"="count",
-                                                   "ag_box_1"="abundances",
-                                                   "ag_hist_1"="count",
-                                                   "ag_bar_1"="count"
-                                    )))
+                                       min=1,max=50,value=16,step=1)
+                            },
+                          uiOutput(ns("input_ylab")))
                  ), #fludiRow close
                  h4("Features specific to the plot type:"),
                  if(grepl("box",plot_type)){ #boxplots
@@ -121,7 +115,7 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
                    column(6,numericInput(ns("out_size"),"Outlier size",min=1,
                                          max=50,value=2,step=1))
                    )#fluidRow close
-                 },
+                 }, #boxplots close
                  if(grepl("hist",plot_type)){ #histograms
                    fluidRow(
                      column(6,numericInput(ns("binwidth"),"Bin width",min=1,
@@ -134,7 +128,7 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
                            colourInput(ns("bincol"),"Bin color (border)",
                                         palette = "limited",value = "#000000"))
                    ) #fluidRow close
-                 },
+                 }, #histograms close
                  if(grepl("bar",plot_type)){ #barplots
                    fluidRow(
                      column(6,colourInput(ns("barfill"),"Bar color (fill)",
@@ -142,14 +136,35 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
                      column(6,colourInput(ns("barcol"),"Bar color (border)",
                                           palette = "limited",value = "#000000"))
                    ) #fluidRow close
-                 },
+                 }, #barplots close
+                 if(grepl("volcano",plot_type)){ #volcano
+                   fluidRow(
+                     column(6,numericInput(ns("alpha"),
+                                           "Degree of transparency (alpha)",min=0,
+                                           max=1,value=0.75,step=0.01),
+                            textInput(ns("firstB"),"Label for significant positive difference",
+                                      value="Up in the first group"),
+                            numericInput(ns("diffthresh"),"Threshold for difference",
+                                         min=0,value=4,step=0.1)),
+                     column(6,textInput(ns("nonsig"),"Label for non-significant difference",
+                                        value="Non-significant"),
+                            textInput(ns("secondB"),"Label for significant negative difference",
+                                      value="Up in the second group"),
+                            numericInput(ns("pvalthresh"),"Threshold for p-value",
+                                         min=0.001,max=1,value=0.01,step=0.001))
+                   ) #fluidRow close
+                 }, #volcano close
                  actionButton(ns("apply"),"Apply changes")
                    ) #div close
 
                  ), #dropdownButton close
                actionButton(ns("render"),label = "Render plot",icon = icon("play")),
-               downloadButton(ns("down"),label = "Download plot (.png)"),br(),
+      shinyjs::hidden(
+               downloadButton(ns("down"),label = "Download plot (.png)")
+               ),br(),
+      shinyjs::hidden(
                downloadButton(ns("downI"),label = "Download interactive plot (.html)")
+      )
 
       ) #menuItem close
     ) #sidebarMenu close
@@ -176,6 +191,52 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
 mod_plot_server <- function(id,plot_type,r){
   moduleServer(id, function(input, output, session){
     ns <- session$ns
+
+    ####Interactive inputs----
+    output$input_select_2=renderUI({
+      req(not_null(r$ngroups))
+      req(plot_type=="an_volcano_1" & r$ngroups>2)
+      if(r$ngroups!=length(levels(as.factor(r$d3$treatment)))){
+        req(not_null(r$groups))
+        pairs=combn(r$groups, 2)
+      }else{
+        pairs=combn(as.character(levels(as.factor(r$d3$treatment))),2)
+      }
+      pairs=apply(pairs, 2, function(pair) paste(pair, collapse = ", "))
+      selectInput(ns("select_2"),"Select a pair of treatment groups:",
+                  choices = pairs,multiple = F)
+
+    })
+
+    output$input_xlab=renderUI({
+      textInput(ns("xlab"),label = "X-axis label",
+                value = switch(plot_type,
+                               "eda_box_1"="runID",
+                               "eda_hist_1"="number of detected proteins in each run",
+                               "ag_box_1"="sampleID",
+                               "ag_hist_1"="number of detected proteins in each sample",
+                               "ag_bar_1"="number of detections of one protein within one sample",
+                               "an_volcano_1"=ifelse(r$an_method%in%c("wilcoxon","kw.test"),
+                                                     "Difference of group medians",
+                                                     "Difference of group means")
+                ))
+    })
+    outputOptions(output, "input_xlab", suspendWhenHidden=FALSE)
+
+    output$input_ylab=renderUI({
+      textInput(ns("ylab"),label = "Y-axis label",
+                value = switch(plot_type,
+                               "eda_box_1"="abundances",
+                               "eda_hist_1"="count",
+                               "ag_box_1"="abundances",
+                               "ag_hist_1"="count",
+                               "ag_bar_1"="count",
+                               "an_volcano_1"=ifelse(input$select_1=="original",
+                                                     ifelse(r$ngroups==2,"-log10(p-value)","Overall -log10(p-value)"),
+                                                     ifelse(r$ngroups==2,"-log10(adjusted p-value)","Overall -log10(adjusted p-value)"))
+                               ))
+    })
+    outputOptions(output, "input_ylab", suspendWhenHidden=FALSE)
 
     ####Data preparation----
 
@@ -268,6 +329,42 @@ mod_plot_server <- function(id,plot_type,r){
                }
                d
              }, #ag_bar_1 close
+             "an_volcano_1"={
+               req(not_null(r$results))
+               d=r$results
+               #Keep just the selected form of p-value:
+               if(input$select_1=="original"){
+                 d$adj.p.value=NULL
+                 }else{
+                   d$p.value=NULL
+                   names(d)[grepl("value",names(d))]="p.value"
+                 }
+               #-log10(p-value):
+               d$log_pval=(-1)*log10(d$p.value)
+
+               #diff column (x-axis of the volcano):
+               if(r$ngroups==2){ #two groups (t-test/wilcoxon):
+                 #Rename diffmean or diffmedian of the only pair:
+                 names(d)[grepl("diffm",names(d))]="diff"
+               }else{ #more than 2 groups (anova/kw):
+                 pair_string=paste(strsplit(input$select_2, ", ")[[1]],collapse="_")
+                 rev_pair_string=paste(rev(strsplit(pair_string, "")[[1]]), collapse = "")
+                 if(sum(grepl(paste0("^diffm.+",pair_string,"$"), names(d)))>0){
+                   names(d)[grepl(paste0("^diffm.+",pair_string,"$"), names(d))]="diff"
+                 }else{
+                   names(d)[grepl(paste0("^diffm.+",rev_pair_string,"$"), names(d))]="diff"
+                 }
+               }
+
+               #threshold:
+               d=d %>%
+                 mutate(threshold = if_else(diff >= input$diffthresh & log_pval >= (-1)*log10(input$pvalthresh),
+                                            input$firstB,
+                                            if_else(diff <= (-1)*input$diffthresh & log_pval >= (-1)*log10(input$pvalthresh),
+                                                    input$secondB,input$nonsig)
+                 ))
+               d
+             }, #an_volcano_1 close
              NULL)
     }) #dTOplot close
 
@@ -471,6 +568,36 @@ mod_plot_server <- function(id,plot_type,r){
 
                ag_bar_1
              }, #ag_bar_1 close
+             "an_volcano_1"={
+               an_volcano_1=ggplot(data=dTOplot(),aes(x=diff,y=log_pval,
+                                                      colour = threshold))+
+                 geom_point_interactive(aes(tooltip = paste0("Accession: ", Accession, "<br>",
+                                                             "Difference of group ",
+                                                             ifelse(r$an_method%in%c("t.test","anova"),
+                                                                    "means","medians"),": ",
+                                                             round(diff,3), "<br>",
+                                                             ifelse(input$select_1=="original",
+                                                                    "","adjusted "),
+                                                             "p-value: ", signif(10^(-log_pval),3))),
+                                        alpha = input$alpha)+
+                 geom_hline(yintercept = (-1)*log10(input$pvalthresh), linetype = 2, alpha = 0.5) +
+                 geom_vline(xintercept = input$diffthresh, linetype = 2, alpha = 0.5) +
+                 geom_vline(xintercept = (-1)*input$diffthresh, linetype = 2, alpha = 0.5) +
+                 xlab(input$xlab)+ylab(input$ylab) +
+                 theme_classic()+
+                 theme(
+                   axis.title = element_text(size=input$axis_title_size),
+                   axis.text = element_text(size=input$axis_text_size),
+                   legend.title = element_blank(),
+                   legend.text = element_text(size=input$legend_text_size)
+                 )+
+                 ggrepel::geom_text_repel(
+                   data = subset(dTOplot(), threshold!=input$nonsig),
+                   aes(diff,log_pval, label = Accession),
+                   alpha = 0.6, max.overlaps = 50)
+
+               an_volcano_1
+             }, #an_volcano_1 close
              NULL) #switch close
 
     }) #plot close
@@ -496,7 +623,8 @@ mod_plot_server <- function(id,plot_type,r){
              "eda_hist_1"={r$eda_hist_1=plot()},
              "ag_box_1"={r$ag_box_1=plot()},
              "ag_hist_1"={r$ag_hist_1=plot()},
-             "ag_bar_1"={r$ag_bar_1=plot()}
+             "ag_bar_1"={r$ag_bar_1=plot()},
+             "an_volcano_1"={r$an_volcano_1=plot()}
              )
     })
 
@@ -526,6 +654,18 @@ mod_plot_server <- function(id,plot_type,r){
       }
     )
 
+    observe({
+      if(not_null(r[[paste0(plot_type)]])){
+        shinyjs::show("down")
+        shinyjs::show("downI")
+      }else{
+        shinyjs::hide("down")
+        shinyjs::hide("downI")
+      }
+    })
+
+
+
     #### Helpers ----
     observeEvent(input$help,{
       showModal(
@@ -552,8 +692,10 @@ mod_plot_server <- function(id,plot_type,r){
     observe({
       if(input$select_1=="with grouping"){
         shinyjs::hide("binfill")
+        shinyjs::hide("barfill")
       }else{
         shinyjs::show("binfill")
+        shinyjs::show("barfill")
       }
     })
 
@@ -571,6 +713,8 @@ mod_plot_server <- function(id,plot_type,r){
     if(plot_type=="ag_box_1"){
       shinyjs::hide("select_1")
     }
+
+
 
   })
 }

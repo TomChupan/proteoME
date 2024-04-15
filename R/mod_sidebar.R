@@ -68,7 +68,10 @@ mod_sidebar_ui <- function(id){
                      mod_impute_ui(ns("impute_1"))
     ), #conditionalPanel imputation close
     conditionalPanel(condition = "output.tabset_value =='an'",ns=ns,
-                     mod_analysis_ui(ns("analysis_1"))
+                     mod_analysis_ui(ns("analysis_1")),
+                     mod_plot_ui(ns("an_1"),
+                                 plot_type="an_volcano_1",
+                                 menuItem_label = "Volcano plot")
     ) #conditionalPanel analysis close
 
   ) #tagList close
@@ -104,6 +107,7 @@ mod_sidebar_server <- function(id,r){
     mod_filter_server("filter_1",r=r)
     mod_impute_server("impute_1",r=r)
     mod_analysis_server("analysis_1",r=r)
+    mod_plot_server("an_1",plot_type="an_volcano_1",r=r)
 
   })
 }

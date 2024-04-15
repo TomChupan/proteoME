@@ -111,10 +111,20 @@ mod_body_ui <- function(id){
                            ) #fluidRow close
                          ) #fluidPage close
                          ), #tabPanel Imputation close
-                tabPanel("Analysis",value = "an"
-                ), #tabPanel Analysis close
-                tabPanel("Log",value = "log"
-                ), #tabPanel Log close
+                tabPanel("Analysis",value = "an",
+                         fluidPage(
+                           fluidRow(
+                             mod_body_analysis_ui(ns("body_analysis_1"),
+                                                box_title = "Results of the selected test")
+                           ), #fluidRow close
+                           fluidRow(
+                             mod_body_plot_ui(ns("body_plot_6"),
+                                              box_title="Volcano plot")
+                           ), #fluidRow close
+                         ) #fluidPage close
+                )#, #tabPanel Analysis close
+                #tabPanel("Log",value = "log" ....to be finished
+                #), #tabPanel Log close
     ) #tabsetPanel close
 
 
@@ -193,6 +203,14 @@ mod_body_server <- function(id,r){
     mod_body_impute_server("body_impute_1",
                            validate_message="Please aggregate your data with abundances.",
                            r=r)
+
+    #####Tab 8 - Analysis -----
+    mod_body_analysis_server("body_analysis_1",
+                           validate_message="Set all parameters and click on the 'Analyse' button",
+                           r=r)
+    mod_body_plot_server("body_plot_6",
+                         plot_type="an_volcano_1",
+                         r=r)
 
     #####Modals when switchin tabs ----
     observeEvent(input$tabs, {

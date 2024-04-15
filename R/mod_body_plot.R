@@ -55,6 +55,7 @@ mod_body_plot_server <- function(id,
              "ag_box_1"=r$ag_box_1,
              "ag_hist_1"=r$ag_hist_1,
              "ag_bar_1"=r$ag_bar_1,
+             "an_volcano_1"=r$an_volcano_1,
              NULL)
     }) #renderPlot close
 
