@@ -242,7 +242,7 @@ mod_analysis_server <- function(id,r){
         rounding=function(x){ifelse(abs(x)<1,signif(x,3),round(x,3))}
 
         results_df=results_df %>%
-          mutate_if(is.numeric, rounding)#####když <1, signif, jinak round
+          mutate_if(is.numeric, rounding)# if <1, signif, else round
 
         r$analysedTF=TRUE
         shinyjs::hide("ngroups")
