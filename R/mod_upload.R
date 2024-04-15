@@ -196,6 +196,9 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
       r$aggregatedTF=FALSE
       r$filteredTF=FALSE
       r$imputedTF=FALSE
+
+      #Analysis results
+      r$results=NULL
     })
 
     #Show/hide things on the sidebar when uploading/reseting

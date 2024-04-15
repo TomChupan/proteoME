@@ -135,6 +135,7 @@ mod_aggregate_server <- function(id,r){
     })
 
     observeEvent(input$reconfirm,{
+      if(isTRUE(input$reconfirm)){
       #Indicator:
       r$aggregatedTF=FALSE
       r$filteredTF=FALSE
@@ -145,6 +146,9 @@ mod_aggregate_server <- function(id,r){
       #Plots:
       r$ag_box_1=NULL
       r$ag_hist_1=NULL
+      #Analysis results:
+      r$results=NULL
+      }
     })
 
     observe({

@@ -94,7 +94,7 @@ mod_filter_server <- function(id,r){
         r$dAG_pivotlonger=d
 
         shinyalert(title = "Your dataset has been successfully filtered!",
-                   text="You can check the dataset via _______ on this tab or proceed to the following analysis steps.",
+                   text="You can check the dataset via missingness plots on this tab or proceed to the following analysis steps.",
                    showConfirmButton = TRUE, type = "success")
         shinyjs::hide("method")
         shinyjs::hide("atleast")
@@ -106,7 +106,7 @@ mod_filter_server <- function(id,r){
 
     ####After filtering ----
     observeEvent(input$filcheck,{
-      shinyalert(title = "Your dataset has already been filterd!",
+      shinyalert(title = "Your dataset has already been filtered!",
                  text="If you want to change the filtering method or parameters, you need to
                  re-aggregate the data on the previous tab.",
                  showConfirmButton = TRUE, type = "info")
