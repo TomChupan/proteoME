@@ -13,7 +13,7 @@ app_server <- function(input, output, session) {
 
   r=reactiveValues(
     transformedTF=FALSE,normalizedTF=FALSE,aggregatedTF=FALSE,filteredTF=FALSE,
-    imputedTF=FALSE,turnoff_data_char=FALSE
+    imputedTF=FALSE,turnoff_data_char=FALSE,analysedTF=FALSE
   )
   mod_sidebar_server("sidebar_1",r=r)
   mod_body_server("body_1",r=r)
