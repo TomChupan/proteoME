@@ -38,6 +38,7 @@ golem::add_module(name = "filter", with_test = FALSE)
 golem::add_module(name = "impute", with_test = FALSE)
 golem::add_module(name = "body_impute", with_test = FALSE)
 golem::add_module(name = "analysis", with_test = FALSE)
+golem::add_module(name = "body_analysis", with_test = FALSE)
 
 ## Add helper functions ----
 ## Creates fct_* and utils_*
@@ -84,6 +85,8 @@ usethis::use_package("stringr")
 usethis::use_package("ChemoSpec")
 usethis::use_package("amap")
 usethis::use_package("shinyFeedback")
+usethis::use_package("rstatix")
+usethis::use_package("ggrepel")
 
 ## Check if you haven't missed anything:
 # This function will read all the scripts in the R/ folder and
