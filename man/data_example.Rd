@@ -5,7 +5,7 @@
 \alias{data_example}
 \title{Example data with protein abundances}
 \format{
-A data frame with 2018 rows and 101 columns:
+A data frame with 1018 rows and 101 columns:
 \describe{
 \itemize{
  \item{Accession: }{An UniProt accession number – a unique identifier assigned
@@ -22,7 +22,7 @@ A data frame with 2018 rows and 101 columns:
 }
 }
 \source{
-<https://raw.githubusercontent.com/TomChupan/data/main/data_example3.csv>
+<https://raw.githubusercontent.com/TomChupan/data/main/data_example4.csv>
 }
 \usage{
 data_example

@@ -4,7 +4,7 @@
 #' proteoME Shiny app.
 #'
 #' @format
-#' A data frame with 2018 rows and 101 columns:
+#' A data frame with 1018 rows and 101 columns:
 #' \describe{
 #' \itemize{
 #'  \item{Accession: }{An UniProt accession number – a unique identifier assigned
@@ -19,7 +19,7 @@
 #'  }
 #'
 #' }
-#' @source <https://raw.githubusercontent.com/TomChupan/data/main/data_example3.csv>
+#' @source <https://raw.githubusercontent.com/TomChupan/data/main/data_example4.csv>
 #'
 "data_example"
 
