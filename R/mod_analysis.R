@@ -30,14 +30,14 @@ mod_analysis_ui <- function(id){
                uiOutput(ns("input_method")),
                shinyjs::hidden(
                  sliderInput(ns("alpha"),"P-value treshold for multiple comparison",
-                              min=0,max=0.2,value=0.05)
+                             min=0,max=0.2,value=0.05)
                ),
                actionButton(ns("analyse"),"Analyse"),
                shinyjs::hidden(
                  actionButton(ns("ancheck"),"Analysed",class="button",
                               icon=icon("check")),
                  actionButton(ns("reset"),"Reset (change groups/method/parameters)")
-                 )
+               )
       ) #menuItem close
     ) #sidebarMenu close
 
@@ -75,8 +75,8 @@ mod_analysis_server <- function(id,r){
     output$input_groups=renderUI({
       req(input$ngroups)
       if(input$ngroups!=length(levels(as.factor(r$d3$treatment))))
-      selectInput(ns("groups"),"Groups to compare:",
-                  choices = levels(as.factor((r$d3$treatment))),multiple = T)
+        selectInput(ns("groups"),"Groups to compare:",
+                    choices = levels(as.factor((r$d3$treatment))),multiple = T)
     })
     #shinyFeedback for this input (we need it to be equal to input$ngroups):
     observeEvent(input$groups,{
@@ -99,7 +99,7 @@ mod_analysis_server <- function(id,r){
                     c("t-test"="t.test",
                       "Wilcoxon signed-rank test"="wilcoxon")
                   }else{
-                    c("ANOVA"="anova","Kruskal–Wallis test"="kw.test")
+                    c("ANOVA"="anova","Kruskal-Wallis test"="kw.test")
                   }
                   },multiple = F)
     })
@@ -141,119 +141,119 @@ mod_analysis_server <- function(id,r){
                      text="Please be stricter when filtering your data or impute your data.",
                      showConfirmButton = TRUE, type = "warning")
         }else{ #enough data, go ahead
-        ######Group means/medians: ----
-        tdTOtest=as.data.frame(t(dTOtest))
-        tdTOtest$groups=groups
+          ######Group means/medians: ----
+          tdTOtest=as.data.frame(t(dTOtest))
+          tdTOtest$groups=groups
 
-        if(input$method %in% c("t.test","anova")){ #means for parametric test
-          #group means:
-          means=tdTOtest %>%
-            group_by(groups) %>%
-            summarise(across(everything(), ~mean(., na.rm = TRUE)))
-          group_names=means$groups
-          m_df=as.data.frame(t(as.data.frame(means)[,-1]))
-          colnames(m_df)=paste0("mean_",group_names)
-          #differences:
-          for(i in 1:(length(group_names)-1)){
-            for(j in (i + 1):length(group_names)){
-              difference=as.numeric(m_df[, i])-as.numeric(m_df[, j])
-              column_name=paste0("diffmean",group_names[i],"_",group_names[j])
-              m_df[[column_name]]=difference
+          if(input$method %in% c("t.test","anova")){ #means for parametric test
+            #group means:
+            means=tdTOtest %>%
+              group_by(groups) %>%
+              summarise(across(everything(), ~mean(., na.rm = TRUE)))
+            group_names=means$groups
+            m_df=as.data.frame(t(as.data.frame(means)[,-1]))
+            colnames(m_df)=paste0("mean_",group_names)
+            #differences:
+            for(i in 1:(length(group_names)-1)){
+              for(j in (i + 1):length(group_names)){
+                difference=as.numeric(m_df[, i])-as.numeric(m_df[, j])
+                column_name=paste0("diffmean",group_names[i],"_",group_names[j])
+                m_df[[column_name]]=difference
+              }
             }
-          }
-        } #close if means
-        else{ #medians for non-parametric test
-          #group medians:
-          medians=tdTOtest %>%
-            group_by(groups) %>%
-            summarise(across(everything(), ~median(., na.rm = TRUE)))
-          group_names=medians$groups
-          m_df=as.data.frame(t(as.data.frame(medians)[,-1]))
-          colnames(m_df)=paste0("median_",group_names)
-          #differences:
-          for(i in 1:(length(group_names)-1)){
-            for(j in (i + 1):length(group_names)){
-              difference=as.numeric(m_df[, i])-as.numeric(m_df[, j])
-              column_name=paste0("diffmedian",group_names[i],"_",group_names[j])
-              m_df[[column_name]]=difference
+          } #close if means
+          else{ #medians for non-parametric test
+            #group medians:
+            medians=tdTOtest %>%
+              group_by(groups) %>%
+              summarise(across(everything(), ~median(., na.rm = TRUE)))
+            group_names=medians$groups
+            m_df=as.data.frame(t(as.data.frame(medians)[,-1]))
+            colnames(m_df)=paste0("median_",group_names)
+            #differences:
+            for(i in 1:(length(group_names)-1)){
+              for(j in (i + 1):length(group_names)){
+                difference=as.numeric(m_df[, i])-as.numeric(m_df[, j])
+                column_name=paste0("diffmedian",group_names[i],"_",group_names[j])
+                m_df[[column_name]]=difference
+              }
             }
-          }
-        } #close else medians
+          } #close else medians
 
-        #####Test ----
-        #t-test:
-        if(input$method=="t.test"){
+          #####Test ----
+          #t-test:
+          if(input$method=="t.test"){
             pval=apply(dTOtest,1,function(x){
               t=t.test(as.numeric(x)~groups)
               t$p.value
             })
-        }
-        #wilcoxon:
-        if(input$method=="wilcoxon"){
-          suppressWarnings({
-            pval=apply(dTOtest,1,function(x){
-              t=wilcox.test(as.numeric(x)~groups)
-              t$p.value
+          }
+          #wilcoxon:
+          if(input$method=="wilcoxon"){
+            suppressWarnings({
+              pval=apply(dTOtest,1,function(x){
+                t=wilcox.test(as.numeric(x)~groups)
+                t$p.value
+              })
             })
-          })
-        }
-        #anova:
-        if(input$method=="anova"){
-          pval=vector()
-          signif_diff=vector()
-          for(i in 1:nrow(dTOtest)){
-            model=aov(as.numeric(dTOtest[i,])~groups)
-            t=summary(model)
-            pval[i]=t[[1]][["Pr(>F)"]][1]
-            tukey=as.data.frame(TukeyHSD(model)[[1]])
-            rows=which(tukey$`p adj`<input$alpha)
-            if(length(rows)>0){
-              signif_diff[i]=paste(rownames(tukey)[rows],collapse = ",")
-            }else{
-              signif_diff[i]=NA
+          }
+          #anova:
+          if(input$method=="anova"){
+            pval=vector()
+            signif_diff=vector()
+            for(i in 1:nrow(dTOtest)){
+              model=aov(as.numeric(dTOtest[i,])~groups)
+              t=summary(model)
+              pval[i]=t[[1]][["Pr(>F)"]][1]
+              tukey=as.data.frame(TukeyHSD(model)[[1]])
+              rows=which(tukey$`p adj`<input$alpha)
+              if(length(rows)>0){
+                signif_diff[i]=paste(rownames(tukey)[rows],collapse = ",")
+              }else{
+                signif_diff[i]=NA
+              }
             }
           }
-        }
-        if(input$method=="kw.test"){
-          pval=vector()
-          signif_diff=vector()
-          for(i in 1:nrow(dTOtest)){
-            pval[i]=kruskal.test(as.numeric(dTOtest[i,])~groups)$p.value
-            df_dunn=data.frame(abundances=as.numeric(dTOtest[i,]),groups=groups)
-            dunn=rstatix::dunn_test(data=df_dunn,formula=abundances~groups,
-                                    p.adjust.method = "BH")
-            rows=which(dunn$p.adj<input$alpha)
-            if(length(rows)>0){
-              signif_diff[i]=paste0(dunn$group1[rows],"-",dunn$group2[rows],collapse = ",")
-            }else{
-              signif_diff[i]=NA
+          if(input$method=="kw.test"){
+            pval=vector()
+            signif_diff=vector()
+            for(i in 1:nrow(dTOtest)){
+              pval[i]=kruskal.test(as.numeric(dTOtest[i,])~groups)$p.value
+              df_dunn=data.frame(abundances=as.numeric(dTOtest[i,]),groups=groups)
+              dunn=rstatix::dunn_test(data=df_dunn,formula=abundances~groups,
+                                      p.adjust.method = "BH")
+              rows=which(dunn$p.adj<input$alpha)
+              if(length(rows)>0){
+                signif_diff[i]=paste0(dunn$group1[rows],"-",dunn$group2[rows],collapse = ",")
+              }else{
+                signif_diff[i]=NA
+              }
             }
           }
-        }
 
-        m_df$p.value=pval
-        m_df$adj.p.value=p.adjust(pval,method = "BH")
-        if(input$method %in% c("anova","kw.test")){
-          m_df$signif_diff=signif_diff
-        }
+          m_df$p.value=pval
+          m_df$adj.p.value=p.adjust(pval,method = "BH")
+          if(input$method %in% c("anova","kw.test")){
+            m_df$signif_diff=signif_diff
+          }
 
-        results_df=cbind(data.frame(Accession=proteins),m_df)
+          results_df=cbind(data.frame(Accession=proteins),m_df)
 
-        rounding=function(x){ifelse(abs(x)<1,signif(x,3),round(x,3))}
+          rounding=function(x){ifelse(abs(x)<1,signif(x,3),round(x,3))}
 
-        results_df=results_df %>%
-          mutate_if(is.numeric, rounding)# if <1, signif, else round
+          results_df=results_df %>%
+            mutate_if(is.numeric, rounding)# if <1, signif, else round
 
-        r$analysedTF=TRUE
-        shinyjs::hide("ngroups")
-        shinyjs::hide("groups")
-        shinyjs::hide("method")
-        shinyjs::hide("alpha")
-        shinyjs::hide("analyse")
-        shinyjs::show("ancheck")
-        shinyjs::show("reset")
+          r$analysedTF=TRUE
+          shinyjs::hide("ngroups")
+          shinyjs::hide("groups")
+          shinyjs::hide("method")
+          shinyjs::hide("alpha")
+          shinyjs::hide("analyse")
+          shinyjs::show("ancheck")
+          shinyjs::show("reset")
 
-                r$results=results_df
+          r$results=results_df
         } #else 'enough data' close
       } #else 'analysis' close
     }) #observeEvent close
@@ -276,12 +276,12 @@ mod_analysis_server <- function(id,r){
 
     observeEvent(input$reconfirm,{
       if(isTRUE(input$reconfirm)){
-      #Indicator:
-      r$analysedTF=FALSE
-      #Analysis results:
-      r$results=NULL
-      #Plots:
-      r$an_volcano_1=NULL
+        #Indicator:
+        r$analysedTF=FALSE
+        #Analysis results:
+        r$results=NULL
+        #Plots:
+        r$an_volcano_1=NULL
       }
     })
 
@@ -292,7 +292,7 @@ mod_analysis_server <- function(id,r){
         shinyjs::show("groups")
         shinyjs::show("method")
         if(input$method %in% c("anova","kw.test")){
-        shinyjs::show("alpha")
+          shinyjs::show("alpha")
         }
         shinyjs::show("analyse")
         shinyjs::hide("ancheck")
