@@ -70,6 +70,7 @@ mod_body_sumtab_server <- function(id,validate_message,r){
     }) #dTOsumtab_t close
     #Info:
     observe({
+    req(r$transformedTF==F)
     if(!(all(r$d1[,-1]>0,na.rm = T) | r$trans_method!="log2(x)")&r$tabset_value=="trans"){
        shinyalert::shinyalert(title = "There are zeros in the dataset!",
                    text = "To display the second table, choose a different method (not log2(x)) to transform the data - e.g. log2(x+1).",
