@@ -103,6 +103,7 @@ mod_impute_server <- function(id,r){
                          text = "The previous form of the dataset (non-imputed aggregated/filtered
                          data) will be irretrievably lost and replaced by the imputed dataset!
                          Make sure you have downloaded it or no longer need it.
+                         Any analysis results (table, volcano plot) will be deleted.
                          The imported form of the dataset (by runs) will still be available.",
                          type = "info",cancelOnDismiss = T,
                          btn_labels = c("No, I'll think about it.","Yes, impute it!")
@@ -136,6 +137,10 @@ mod_impute_server <- function(id,r){
         if(sum(is.na(r$d4))==0){
         r$imputedTF=TRUE
         r$turnoff_data_char=TRUE
+        #Analysis results:
+        r$results=NULL
+        #Plots:
+        r$an_volcano_1=NULL
         #long format:
         r$dAG_pivotlonger[,"abundances"]=c(t(as.matrix(r$d4[,-1])))
 
