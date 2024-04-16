@@ -29,7 +29,7 @@ mod_filter_ui <- function(id){
                                        "n % of samples within each treatment group"="eachgroup"),
                            multiple = F),
                sliderInput(ns("atleast"),"n:",
-                           value = 15,min = 1,max=100,step=1),
+                           value = 50,min = 1,max=100,step=1),
                actionButton(ns("filter"),"Filter"),
                shinyjs::hidden(
                  actionButton(ns("filcheck"),"Filtered",class="button",
@@ -76,6 +76,7 @@ mod_filter_server <- function(id,r){
                          text = "The previous form of the dataset (non-filtered aggregated
                          data) will be irretrievably lost and replaced by the filtered dataset!
                          Make sure you have downloaded it or no longer need it.
+                         Any analysis results (table, volcano plot) will be deleted.
                          The imported form of the dataset (by runs) will still be available.",
                          type = "info",cancelOnDismiss = T,
                          btn_labels = c("No, I'll think about it.","Yes, filter it!")
@@ -88,6 +89,10 @@ mod_filter_server <- function(id,r){
         r$d4=proteoFI(r$d4,r$d3,input$atleast,input$method)
         r$filteredTF=TRUE
         r$turnoff_data_char=TRUE
+        #Analysis results:
+        r$results=NULL
+        #Plots:
+        r$an_volcano_1=NULL
         #long format:
         d=r$dAG_pivotlonger
         d=d[which(d$Accession%in%unlist(r$d4[,"Accession"])),]
