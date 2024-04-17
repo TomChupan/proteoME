@@ -5,9 +5,7 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
-#' @rdname mod_analysis
-#'
-#' @export
+#' @noRd
 #'
 #' @importFrom shinyalert shinyalert
 #' @importFrom shinyjs hide hidden show
@@ -50,9 +48,7 @@ mod_analysis_ui <- function(id){
 #' @param r A 'reactiveValues()' list containing (among other objects) data set with
 #' abundances. This is analysed here with one of the available methods.
 #' A logical indicator (analysed or not?) is toggled here.
-#' @rdname mod_analysis
-#'
-#' @export
+#' @noRd
 #'
 mod_analysis_server <- function(id,r){
   moduleServer( id, function(input, output, session){
@@ -141,28 +137,28 @@ mod_analysis_server <- function(id,r){
                      text="Please be stricter when filtering your data or impute your data.",
                      showConfirmButton = TRUE, type = "warning")
         }else{ #enough data, go ahead
-          ######Group means/medians: ----
+          ######Group medians: ----
           tdTOtest=as.data.frame(t(dTOtest))
           tdTOtest$groups=groups
 
-          if(input$method %in% c("t.test","anova")){ #means for parametric test
-            #group means:
-            means=tdTOtest %>%
-              group_by(groups) %>%
-              summarise(across(everything(), ~mean(., na.rm = TRUE)))
-            group_names=means$groups
-            m_df=as.data.frame(t(as.data.frame(means)[,-1]))
-            colnames(m_df)=paste0("mean_",group_names)
-            #differences:
-            for(i in 1:(length(group_names)-1)){
-              for(j in (i + 1):length(group_names)){
-                difference=as.numeric(m_df[, i])-as.numeric(m_df[, j])
-                column_name=paste0("diffmean",group_names[i],"_",group_names[j])
-                m_df[[column_name]]=difference
-              }
-            }
-          } #close if means
-          else{ #medians for non-parametric test
+          #if(input$method %in% c("t.test","anova")){ #means for parametric test
+          #  #group means:
+          #  means=tdTOtest %>%
+          #    group_by(groups) %>%
+          #    summarise(across(everything(), ~mean(., na.rm = TRUE)))
+          #  group_names=means$groups
+          #  m_df=as.data.frame(t(as.data.frame(means)[,-1]))
+          #  colnames(m_df)=paste0("mean_",group_names)
+          #  #differences:
+          #  for(i in 1:(length(group_names)-1)){
+          #    for(j in (i + 1):length(group_names)){
+          #      difference=as.numeric(m_df[, i])-as.numeric(m_df[, j])
+          #      column_name=paste0("diffmean",group_names[i],"_",group_names[j])
+          #      m_df[[column_name]]=difference
+          #    }
+          #  }
+          #} #close if means
+          #else{ #medians for non-parametric test
             #group medians:
             medians=tdTOtest %>%
               group_by(groups) %>%
@@ -178,7 +174,7 @@ mod_analysis_server <- function(id,r){
                 m_df[[column_name]]=difference
               }
             }
-          } #close else medians
+          #} #close else medians
 
           #####Test ----
           #t-test:

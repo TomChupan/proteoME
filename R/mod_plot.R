@@ -16,9 +16,7 @@
 #' For example: eda_box_1 stands for the first box plot on the "Exploratory data analysis"
 #' tab.
 #'
-#' @rdname mod_plot
-#'
-#' @export
+#' @noRd
 #'
 #' @importFrom dplyr %>% mutate if_else
 #' @importFrom ggplot2 ggplot after_stat theme_classic theme_minimal aes ggsave ylab xlab theme element_text ylim scale_y_continuous element_line element_blank position_dodge2 geom_hline geom_vline
@@ -90,7 +88,16 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
                                          min=1,max=50,value=12,step=1),
                           numericInput(ns("legend_text_size"),"Legend text size",
                                        min=1,max=50,value=12,step=1),
-                          uiOutput(ns("input_xlab"))
+                          textInput(ns("xlab"),label = "X-axis label",
+                                    value = switch(plot_type,
+                                                   "eda_box_1"="runID",
+                                                   "eda_hist_1"="number of detected proteins in each run",
+                                                   "ag_box_1"="sampleID",
+                                                   "ag_hist_1"="number of detected proteins in each sample",
+                                                   "ag_bar_1"="number of detections of one protein within one sample",
+                                                   "an_volcano_1"="Difference of group medians"
+
+                                    ))
                    ),
                    column(6,numericInput(ns("width"),"Width (inches)",min=1,
                                          max=30,value=9,step=1),
@@ -143,13 +150,13 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
                                            "Degree of transparency (alpha)",min=0,
                                            max=1,value=0.75,step=0.01),
                             textInput(ns("firstB"),"Label for significant positive difference",
-                                      value="Up in the first group"),
+                                      value="Higher in the first group"),
                             numericInput(ns("diffthresh"),"Threshold for difference",
                                          min=0,value=4,step=0.1)),
                      column(6,textInput(ns("nonsig"),"Label for non-significant difference",
                                         value="Non-significant"),
                             textInput(ns("secondB"),"Label for significant negative difference",
-                                      value="Up in the second group"),
+                                      value="Higher in the second group"),
                             numericInput(ns("pvalthresh"),"Threshold for p-value",
                                          min=0.001,max=1,value=0.01,step=0.001))
                    ) #fluidRow close
@@ -184,9 +191,7 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
 #' }
 #' For example: eda_box_1 stands for the first box plot on the "Exploratory data analysis"
 #' tab.
-#'
-#' @rdname mod_plot
-#' @export
+#' @noRd
 #'
 mod_plot_server <- function(id,plot_type,r){
   moduleServer(id, function(input, output, session){
@@ -207,21 +212,6 @@ mod_plot_server <- function(id,plot_type,r){
                   choices = pairs,multiple = F)
 
     })
-
-    output$input_xlab=renderUI({
-      textInput(ns("xlab"),label = "X-axis label",
-                value = switch(plot_type,
-                               "eda_box_1"="runID",
-                               "eda_hist_1"="number of detected proteins in each run",
-                               "ag_box_1"="sampleID",
-                               "ag_hist_1"="number of detected proteins in each sample",
-                               "ag_bar_1"="number of detections of one protein within one sample",
-                               "an_volcano_1"=ifelse(r$an_method%in%c("wilcoxon","kw.test"),
-                                                     "Difference of group medians",
-                                                     "Difference of group means")
-                ))
-    })
-    outputOptions(output, "input_xlab", suspendWhenHidden=FALSE)
 
     output$input_ylab=renderUI({
       textInput(ns("ylab"),label = "Y-axis label",
@@ -344,7 +334,7 @@ mod_plot_server <- function(id,plot_type,r){
 
                #diff column (x-axis of the volcano):
                if(r$ngroups==2){ #two groups (t-test/wilcoxon):
-                 #Rename diffmean or diffmedian of the only pair:
+                 #Rename diffmedian of the only pair:
                  names(d)[grepl("diffm",names(d))]="diff"
                }else{ #more than 2 groups (anova/kw):
                  pair_string=paste(strsplit(input$select_2, ", ")[[1]],collapse="_")
@@ -572,9 +562,7 @@ mod_plot_server <- function(id,plot_type,r){
                an_volcano_1=ggplot(data=dTOplot(),aes(x=diff,y=log_pval,
                                                       colour = threshold))+
                  geom_point_interactive(aes(tooltip = paste0("Accession: ", Accession, "<br>",
-                                                             "Difference of group ",
-                                                             ifelse(r$an_method%in%c("t.test","anova"),
-                                                                    "means","medians"),": ",
+                                                             "Difference of group medians: ",
                                                              round(diff,3), "<br>",
                                                              ifelse(input$select_1=="original",
                                                                     "","adjusted "),
