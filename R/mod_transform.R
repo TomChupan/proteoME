@@ -4,10 +4,7 @@
 #' @description A shiny Module containing sidebar content for data transformation.
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
-#'
-#' @rdname mod_transform
-#'
-#' @export
+#' @noRd
 #' @importFrom shinyWidgets ask_confirmation
 #' @importFrom shinyjs hide hidden show
 mod_transform_ui <- function(id){
@@ -40,8 +37,7 @@ mod_transform_ui <- function(id){
 #' toggled here. Transformation method is saved to r to be used in
 #' other modules.
 #'
-#' @rdname mod_transform
-#' @export
+#' @noRd
 mod_transform_server <- function(id,r){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
@@ -56,7 +52,9 @@ mod_transform_server <- function(id,r){
       req(not_null(r$d1) & not_null(r$d2) & not_null(r$d3))
       if(all(r$d1[,-1]>0,na.rm = T) | input$method!="log2(x)"){
       ask_confirmation(inputId = "confirm",title = "Are you sure?",
-                       text = "The previous form of the dataset will be irretrievably lost! Make sure you have downloaded it or no longer need it.",
+                       text = "The previous form of the dataset will be irretrievably lost! Make sure you have downloaded it or no longer need it.
+                       You will also lost any aggregation, filtering or imputation steps as well
+                       as analysis results.",
                        type = "info",cancelOnDismiss = T,
                        btn_labels = c("No, I'll think about it.","Yes, transform it!")
                        )
@@ -77,7 +75,20 @@ mod_transform_server <- function(id,r){
         r$d_pivotlonger[,"abundances"]=c(t(as.matrix(r$d1[,-1])))
         r$eda_box_1=NULL
         r$eda_hist_1=NULL
+        #Indicator:
         r$transformedTF=TRUE
+        r$aggregatedTF=FALSE
+        r$filteredTF=FALSE
+        r$imputedTF=FALSE
+        #Data:
+        r$d4=NULL
+        r$dAG_pivotlonger=NULL
+        #Plots:
+        r$ag_box_1=NULL
+        r$ag_hist_1=NULL
+        #Analysis results:
+        r$results=NULL
+
         shinyalert(title = "Your dataset has been successfully transformed!",
                    text="You can check the dataset on the previous tabs or proceed to the following analysis steps in a few seconds after closing this window (we need to recalculate something :-).",
                    showConfirmButton = TRUE, type = "success")
@@ -96,8 +107,13 @@ mod_transform_server <- function(id,r){
     ####Resets
     observe({
       if(r$transformedTF==FALSE){
+        shinyjs::show("method")
         shinyjs::show("transform")
         shinyjs::hide("transcheck")
+      }else{
+        shinyjs::hide("method")
+        shinyjs::hide("transform")
+        shinyjs::show("transcheck")
       }
     })
 

@@ -5,9 +5,7 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
-#' @rdname mod_filter
-#'
-#' @export
+#' @noRd
 #'
 #' @importFrom shinyWidgets ask_confirmation confirmSweetAlert
 #' @importFrom shinyjs hide hidden show
@@ -29,7 +27,7 @@ mod_filter_ui <- function(id){
                                        "n % of samples within each treatment group"="eachgroup"),
                            multiple = F),
                sliderInput(ns("atleast"),"n:",
-                           value = 50,min = 1,max=100,step=1),
+                           value = 75,min = 1,max=100,step=1),
                actionButton(ns("filter"),"Filter"),
                shinyjs::hidden(
                  actionButton(ns("filcheck"),"Filtered",class="button",
@@ -51,9 +49,7 @@ mod_filter_ui <- function(id){
 #' parameters (and it can be downloaded).
 #' A logical indicator (filtered or not?) is toggled here.
 #' Filtering method and parameters are saved to r to be used in other modules.
-#' @rdname mod_filter
-#'
-#' @export
+#' @noRd
 #'
 mod_filter_server <- function(id,r){
   moduleServer( id, function(input, output, session){
@@ -87,8 +83,10 @@ mod_filter_server <- function(id,r){
     observeEvent(input$confirm,{
       if(isTRUE(input$confirm)){
         r$d4=proteoFI(r$d4,r$d3,input$atleast,input$method)
+        #Indicator:
         r$filteredTF=TRUE
         r$turnoff_data_char=TRUE
+        r$analysedTF=FALSE
         #Analysis results:
         r$results=NULL
         #Plots:

@@ -5,9 +5,7 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
-#' @rdname mod_normalize
-#'
-#' @export
+#' @noRd
 #' @importFrom shinyWidgets ask_confirmation
 #' @importFrom shinyjs hide hidden show
 #' @importFrom preprocessCore normalize.quantiles
@@ -46,8 +44,7 @@ mod_normalize_ui <- function(id){
 #' toggled here. Normalization method is saved to r to be used in
 #' other modules.
 #'
-#' @rdname mod_normalize
-#' @export
+#' @noRd
 mod_normalize_server <- function(id,r){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
@@ -61,7 +58,9 @@ mod_normalize_server <- function(id,r){
     observeEvent(input$normalize,{
       req(not_null(r$d1) & not_null(r$d2) & not_null(r$d3))
         ask_confirmation(inputId = "confirm",title = "Are you sure?",
-                         text = "The previous form of the dataset will be irretrievably lost! Make sure you have downloaded it or no longer need it.",
+                         text = "The previous form of the dataset will be irretrievably lost! Make sure you have downloaded it or no longer need it.
+                         You will also lost any aggregation, filtering or imputation steps as well
+                         as any analysis results.",
                          type = "info",cancelOnDismiss = T,
                          btn_labels = c("No, I'll think about it.","Yes, normalize it!")
         )
@@ -82,8 +81,22 @@ mod_normalize_server <- function(id,r){
         r$d_pivotlonger[,"abundances"]=c(t(as.matrix(r$d1[,-1])))
         r$eda_box_1=NULL
         r$eda_hist_1=NULL
+        #Indicator:
+        r$transformedTF=TRUE #you can't transform data after normalization
         r$normalizedTF=TRUE
         r$turnoff_data_char=TRUE
+        r$aggregatedTF=FALSE
+        r$filteredTF=FALSE
+        r$imputedTF=FALSE
+        #Data:
+        r$d4=NULL
+        r$dAG_pivotlonger=NULL
+        #Plots:
+        r$ag_box_1=NULL
+        r$ag_hist_1=NULL
+        #Analysis results:
+        r$results=NULL
+
         shinyalert(title = "Your dataset has been successfully normalized!",
                    text="You can check the dataset on the previous tabs or proceed to the following analysis steps in a few seconds after closing this window (we need to recalculate something :-).",
                    showConfirmButton = TRUE, type = "success")

@@ -5,9 +5,7 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
-#' @rdname mod_impute
-#'
-#' @export
+#' @noRd
 #'
 #' @importFrom shinyWidgets ask_confirmation
 #' @importFrom shinyjs hide hidden show
@@ -54,9 +52,7 @@ mod_impute_ui <- function(id){
 #' parameters (and it can be downloaded).
 #' A logical indicator (imputed or not?) is toggled here.
 #' Imputation method and parameters are saved to r to be used in other modules.
-#' @rdname mod_impute
-#'
-#' @export
+#' @noRd
 #'
 mod_impute_server <- function(id,r){
   moduleServer( id, function(input, output, session){
@@ -135,7 +131,9 @@ mod_impute_server <- function(id,r){
         }
 
         if(sum(is.na(r$d4))==0){
+        #Indicator:
         r$imputedTF=TRUE
+        r$analysedTF=FALSE
         r$turnoff_data_char=TRUE
         #Analysis results:
         r$results=NULL
