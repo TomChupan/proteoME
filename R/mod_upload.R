@@ -185,6 +185,7 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
       r$ag_box_1=NULL
       r$ag_hist_1=NULL
       r$ag_bar_1=NULL
+      r$an_volcano_1=NULL
       #T/F indicators
       if(data_type==1){
         r$transformedTF=FALSE
@@ -193,6 +194,7 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
       r$aggregatedTF=FALSE
       r$filteredTF=FALSE
       r$imputedTF=FALSE
+      r$analysedTF=FALSE
 
       #Analysis results
       r$results=NULL
