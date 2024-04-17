@@ -13,9 +13,7 @@
 #' }
 #' @param fileInput_label Character to be used as a fileInput label.
 #'
-#' @rdname mod_upload
-#'
-#' @export
+#' @noRd
 #'
 #' @importFrom shiny NS tagList conditionalPanel fileInput actionButton checkboxGroupInput updateCheckboxGroupInput observeEvent observe actionLink showModal modalDialog includeMarkdown
 #' @importFrom shinydashboard sidebarMenu menuItem
@@ -88,8 +86,7 @@ mod_upload_ui <- function(id,menuItem_label=c("Abundances","Annotations (run)",
 #'  \item 3: "Annotations (sample)"
 #' }
 #'
-#' @rdname mod_upload
-#' @export
+#' @noRd
 #'
 mod_upload_server <- function(id,data_type=c(1,2,3),r){
   moduleServer(

@@ -7,8 +7,7 @@
 #' @param id,input,output,session Internal parameters for {shiny}.
 #' @param box_title Character to be used as a box title.
 #'
-#' @rdname mod_body_normalize
-#' @export
+#' @noRd
 #'
 #' @importFrom shinyalert shinyalert
 #' @importFrom shinyjs hide show
@@ -39,8 +38,7 @@ mod_body_normalize_ui <- function(id,box_title){
 #' the dataset was already normalized (r$normalizedTF).
 #'
 #'
-#' @rdname mod_body_normalize
-#' @export
+#' @noRd
 mod_body_normalize_server <- function(id,validate_message,r){
   moduleServer( id, function(input, output, session){
     ns <- session$ns

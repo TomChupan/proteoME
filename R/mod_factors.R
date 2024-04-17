@@ -5,9 +5,7 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
-#' @rdname mod_factors
-#'
-#' @export
+#' @noRd
 #'
 #' @importFrom shiny NS tagList conditionalPanel fileInput actionButton checkboxGroupInput updateCheckboxGroupInput observeEvent observe actionLink showModal modalDialog includeMarkdown
 #' @importFrom dplyr group_by mutate row_number
@@ -26,8 +24,8 @@ mod_factors_ui <- function(id){
 
 #' @param r A "storage" for the variables used throughout the app
 #'
-#' @rdname mod_factors
-#' @export
+#' @noRd
+
 mod_factors_server <- function(id,r){
   moduleServer( id, function(input, output, session){
     ns <- session$ns

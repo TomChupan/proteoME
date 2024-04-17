@@ -7,9 +7,7 @@
 #' @param box_title Character to be used as a box title.
 #'
 #'
-#' @rdname mod_body_plot
-#'
-#' @export
+#' @noRd
 #'
 #' @importFrom ggiraph renderGirafe girafeOutput
 
@@ -40,8 +38,7 @@ mod_body_plot_ui <- function(id,box_title="Your title."){
 #' For example: eda_box_1 stands for the first box plot on the "Exploratory data analysis"
 #' tab.
 #'
-#' @rdname mod_body_plot
-#' @export
+#' @noRd
 mod_body_plot_server <- function(id,
                                  plot_type,
                                  r){

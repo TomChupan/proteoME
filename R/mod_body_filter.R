@@ -7,10 +7,7 @@
 #' @param id,input,output,session Internal parameters for {shiny}.
 #' @param box_title Character to be used as a box title.
 #'
-#'
-#' @rdname mod_body_filter
-#'
-#' @export
+#' @noRd
 #'
 #' @importFrom viridis scale_fill_viridis
 #' @importFrom shinyscreenshot screenshot
@@ -61,8 +58,7 @@ mod_body_filter_ui <- function(id,box_title="Your title."){
 #' @param r A 'reactiveValues()' list containing (among other objects) ___.
 #' These are used here in a ___ function.
 #'
-#' @rdname mod_body_filter
-#' @export
+#' @noRd
 mod_body_filter_server <- function(id,validate_message,
                                    validate_message2,
                                    r){

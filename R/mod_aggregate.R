@@ -1,13 +1,11 @@
 # aggregate UI Function
 
-#' #' @title mod_aggregate_ui and mod_aggregate_server
+#' @title mod_aggregate_ui and mod_aggregate_server
 #' @description A shiny Module containing sidebar content for data aggregation.
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
-#' @rdname mod_aggregate
-#'
-#' @export
+#' @noRd
 #'
 #' @importFrom shinyWidgets ask_confirmation confirmSweetAlert
 #' @importFrom shinyjs hide hidden show
@@ -62,9 +60,7 @@ mod_aggregate_ui <- function(id){
 #' parameters to the sample level (and it can be downloaded).
 #' A logical indicator (aggregated or not?) is toggled here.
 #' Aggregation method and parameters are saved to r to be used in other modules.
-#' @rdname mod_aggregate
-#'
-#' @export
+#' @noRd
 #'
 mod_aggregate_server <- function(id,r){
   moduleServer( id, function(input, output, session){

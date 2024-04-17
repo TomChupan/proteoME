@@ -8,9 +8,7 @@
 #' @param box_title Character to be used as a box title.
 #'
 #'
-#' @rdname mod_body_aggregate
-#'
-#' @export
+#' @noRd
 #'
 #' @importFrom ComplexHeatmap rowAnnotation Heatmap ht_opt HeatmapAnnotation
 #' @importFrom dplyr %>%
@@ -42,8 +40,7 @@ mod_body_aggregate_ui <- function(id,box_title="Your title."){
 #' @param r A 'reactiveValues()' list containing (among other objects) ___.
 #' These are used here in a ___ function.
 #'
-#' @rdname mod_body_aggregate
-#' @export
+#' @noRd
 mod_body_aggregate_server <- function(id,r){
   moduleServer(id, function(input, output, session){
     ns <- session$ns

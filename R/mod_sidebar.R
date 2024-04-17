@@ -5,9 +5,7 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
-#' @rdname mod_sidebar
-#'
-#' @export
+#' @noRd
 #' @importFrom shiny NS tagList
 mod_sidebar_ui <- function(id){
   ns <- NS(id)
@@ -81,8 +79,7 @@ mod_sidebar_ui <- function(id){
 
 #' @param r A "storage" for the variables used throughout the app
 #'
-#' @rdname mod_sidebar
-#' @export
+#' @noRd
 mod_sidebar_server <- function(id,r){
   moduleServer(
     id,

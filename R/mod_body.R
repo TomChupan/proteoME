@@ -11,9 +11,7 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
-#' @rdname mod_body
-#'
-#' @export
+#' @noRd
 #' @importFrom shiny NS tagList tabsetPanel tabPanel fluidPage
 #' @importFrom utils str
 mod_body_ui <- function(id){
@@ -135,8 +133,7 @@ mod_body_ui <- function(id){
 
 #' @param r A "storage" for the variables used throughout the app
 #'
-#' @rdname mod_body
-#' @export
+#' @noRd
 mod_body_server <- function(id,r){
   moduleServer( id, function(input, output, session){
     ns <- session$ns

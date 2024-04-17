@@ -15,9 +15,7 @@
 #' }
 #'
 #'
-#' @rdname mod_body_tab1
-#'
-#' @export
+#' @noRd
 #'
 #' @importFrom shiny NS tagList fluidRow tableOutput validate need
 #' @importFrom shinydashboard box valueBox valueBoxOutput renderValueBox
@@ -60,8 +58,7 @@ mod_body_tab1_ui <- function(id,box_title="Your title.",data_type=c(1,2,3,4)){
 #'  \item 3: "Annotations (sample)"
 #' }
 #'
-#' @rdname mod_body_tab1
-#' @export
+#' @noRd
 mod_body_tab1_server <- function(id,
                                  validate_message="Please upload missing file!",
                                  data_type=c(1,2,3,4),

@@ -6,8 +6,7 @@
 #' @param id,input,output,session Internal parameters for {shiny}.
 #' @param box_title Character to be used as a box title.
 #'
-#' @rdname mod_body_sumtab
-#' @export
+#' @noRd
 #'
 #' @importFrom shinyWidgets materialSwitch
 #' @importFrom DT DTOutput formatRound renderDT datatable
@@ -41,8 +40,7 @@ mod_body_sumtab_ui <- function(id,box_title="Your title."){
 #' the dataset was already transformed (r$transformedTF).
 #'
 #'
-#' @rdname mod_body_sumtab
-#' @export
+#' @noRd
 mod_body_sumtab_server <- function(id,validate_message,r){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
@@ -115,7 +113,7 @@ mod_body_sumtab_server <- function(id,validate_message,r){
     output$sumtab_t_title=renderText({
       if(r$transformedTF==FALSE){
         "After selected transformation method:"
-      }else{"Your dataset has already been transformed. If you want to change a transformation method or return to an untransformed dataset, please reset the data and import it again."}
+      }else{"Your dataset has already been transformed (or normalized without transformation). If you want to change a transformation method or return to an untransformed dataset, please reset the data and import it again."}
     })
 
 

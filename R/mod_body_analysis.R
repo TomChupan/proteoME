@@ -6,8 +6,7 @@
 #' @param id,input,output,session Internal parameters for {shiny}.
 #' @param box_title Character to be used as a box title.
 #'
-#' @rdname mod_body_analysis
-#' @export
+#' @noRd
 #'
 #' @importFrom DT DTOutput renderDT datatable
 #' @importFrom dplyr %>%
@@ -27,8 +26,7 @@ mod_body_analysis_ui <- function(id,box_title="Your title."){
 #' @param r A 'reactiveValues()' list containing ... (will be specified)
 #'
 #'
-#' @rdname mod_body_analysis
-#' @export
+#' @noRd
 mod_body_analysis_server <- function(id,validate_message,r){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
