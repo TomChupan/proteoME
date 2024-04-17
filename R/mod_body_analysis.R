@@ -45,7 +45,9 @@ mod_body_analysis_server <- function(id,validate_message,r){
                                        buttons = list(
                                          list(extend="csv",filename="results",title=NULL),
                                          list(extend="excel",filename="results",title=NULL),
-                                         list(extend="pdf",filename="results",title=NULL)
+                                         list(extend="pdf",filename="results",title=NULL,
+                                              orientation=ifelse(r$ngroups==2,"portrait","landscape"),
+                                              pageSize=ifelse(r$ngroups==2,"A4","A3"))
                                          ),
                                        text = "Download"
                                      )),

@@ -197,6 +197,7 @@ mod_analysis_server <- function(id,r){
           if(input$method=="anova"){
             pval=vector()
             signif_diff=vector()
+            mcdf=data.frame(V1=rep(NA,nrow(dTOtest))) #multiple comparison
             for(i in 1:nrow(dTOtest)){
               model=aov(as.numeric(dTOtest[i,])~groups)
               t=summary(model)
@@ -208,11 +209,21 @@ mod_analysis_server <- function(id,r){
               }else{
                 signif_diff[i]=NA
               }
+              #MC:
+              for(j in 1:length(rownames(tukey))){
+                pvalue=tukey$`p adj`[j]
+                column_name=paste0("tukeyp.value",
+                                   paste0(rev(unlist(strsplit(rownames(tukey)[j],"-"))),
+                                          collapse = "_") )
+                mcdf[[column_name]][i]=pvalue
+              }
             }
+            mcdf[,1]=NULL
           }
           if(input$method=="kw.test"){
             pval=vector()
             signif_diff=vector()
+            mcdf=data.frame(V1=rep(NA,nrow(dTOtest))) #multiple comparison
             for(i in 1:nrow(dTOtest)){
               pval[i]=kruskal.test(as.numeric(dTOtest[i,])~groups)$p.value
               df_dunn=data.frame(abundances=as.numeric(dTOtest[i,]),groups=groups)
@@ -224,7 +235,14 @@ mod_analysis_server <- function(id,r){
               }else{
                 signif_diff[i]=NA
               }
+              #MC
+              for(j in 1:length(rownames(dunn))){
+                pvalue=dunn$p.adj[j]
+                column_name=paste0("dunnp.value",dunn$group1[j],"_",dunn$group2[j])
+                mcdf[[column_name]][i]=pvalue
+              }
             }
+            mcdf[,1]=NULL
           }
 
           m_df$p.value=pval
@@ -233,7 +251,11 @@ mod_analysis_server <- function(id,r){
             m_df$signif_diff=signif_diff
           }
 
-          results_df=cbind(data.frame(Accession=proteins),m_df)
+          if(input$method %in% c("anova","kw.test")){
+            results_df=cbind(data.frame(Accession=proteins),m_df,mcdf)
+          }else{
+            results_df=cbind(data.frame(Accession=proteins),m_df)
+          }
 
           rounding=function(x){ifelse(abs(x)<1,signif(x,3),round(x,3))}
 
