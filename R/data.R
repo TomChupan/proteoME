@@ -25,7 +25,7 @@
 
 #' @title Example data with run annotations
 #'
-#' @description This dataset contains run annotations for *data_example* dataset
+#' @description This dataset contains run annotations for \strong{data_example} dataset
 #' to be used in a proteoME Shiny app.
 #'
 #' @format
@@ -50,13 +50,13 @@
 
 #' @title Example data with sample annotations
 #'
-#' @description This dataset contains sample annotations for *data_example* dataset
+#' @description This dataset contains sample annotations for \strong{data_example} dataset
 #' to be used in a proteoME Shiny app.
 #'
 #' @format
 #' A data frame with 50 rows and 5 columns:
 #' \describe{
-#'  \item{sampleID: }{A column with **unique** sample IDs (one for each patient). It consists of
+#'  \item{sampleID: }{A column with \bold{unique} sample IDs (one for each patient). It consists of
 #'  a letter indicating a treatment group and a number indicating the patient
 #'  number within the group. E.g. ID A2 stands for the second patient within a
 #'  treatment group A.}
