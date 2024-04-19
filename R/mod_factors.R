@@ -143,6 +143,11 @@ observeEvent(r$edit_factors_button, {
         }
       }
 
+
+      r$analysedTF=FALSE
+      r$results=NULL
+      r$an_volcano_1=NULL
+
       removeModal()
       })
 
