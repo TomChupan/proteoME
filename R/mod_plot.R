@@ -19,7 +19,7 @@
 #' @noRd
 #'
 #' @importFrom dplyr %>% mutate if_else
-#' @importFrom ggplot2 ggplot after_stat theme_classic theme_minimal aes ggsave ylab xlab theme element_text ylim scale_y_continuous element_line element_blank position_dodge2 geom_hline geom_vline
+#' @importFrom ggplot2 ggplot after_stat theme_classic theme_minimal aes ggsave ylab xlab theme element_text ylim scale_y_continuous element_line element_blank position_dodge2 geom_hline geom_vline scale_color_manual
 #' @importFrom ggiraph geom_boxplot_interactive girafe opts_hover opts_zoom opts_toolbar geom_histogram_interactive opts_selection geom_col_interactive geom_point_interactive
 #' @importFrom htmlwidgets saveWidget
 #' @importFrom plotly as_widget
@@ -29,6 +29,7 @@
 #' @importFrom tidyr pivot_wider
 #' @importFrom utils combn
 #' @importFrom ggrepel geom_text_repel
+#' @importFrom magrittr set_names
 mod_plot_ui <- function(id,plot_type,menuItem_label){
   ns <- NS(id)
   tagList(
@@ -88,16 +89,7 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
                                          min=1,max=50,value=12,step=1),
                           numericInput(ns("legend_text_size"),"Legend text size",
                                        min=1,max=50,value=12,step=1),
-                          textInput(ns("xlab"),label = "X-axis label",
-                                    value = switch(plot_type,
-                                                   "eda_box_1"="runID",
-                                                   "eda_hist_1"="number of detected proteins in each run",
-                                                   "ag_box_1"="sampleID",
-                                                   "ag_hist_1"="number of detected proteins in each sample",
-                                                   "ag_bar_1"="number of detections of one protein within one sample",
-                                                   "an_volcano_1"="Difference of group medians"
-
-                                    ))
+                          uiOutput(ns("input_xlab"))
                    ),
                    column(6,numericInput(ns("width"),"Width (inches)",min=1,
                                          max=30,value=9,step=1),
@@ -146,17 +138,19 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
                  }, #barplots close
                  if(grepl("volcano",plot_type)){ #volcano
                    fluidRow(
-                     column(6,numericInput(ns("alpha"),
-                                           "Degree of transparency (alpha)",min=0,
-                                           max=1,value=0.75,step=0.01),
-                            textInput(ns("firstB"),"Label for significant positive difference",
-                                      value="Higher in the first group"),
+                     column(6,
+                            textInput(ns("incon"),"Label for inconclusive difference",
+                                      value="Inconclusive"),
+                            uiOutput(ns("input_firstB")),
                             numericInput(ns("diffthresh"),"Threshold for difference",
-                                         min=0,value=4,step=0.1)),
-                     column(6,textInput(ns("nonsig"),"Label for non-significant difference",
+                                         min=0,value=4,step=0.1),
+                            numericInput(ns("alpha"),
+                                         "Degree of transparency (alpha)",min=0,
+                                         max=1,value=0.75,step=0.01)),
+                     column(6,
+                            textInput(ns("nonsig"),"Label for non-significant difference",
                                         value="Non-significant"),
-                            textInput(ns("secondB"),"Label for significant negative difference",
-                                      value="Higher in the second group"),
+                            uiOutput(ns("input_secondB")),
                             numericInput(ns("pvalthresh"),"Threshold for p-value",
                                          min=0.001,max=1,value=0.01,step=0.001))
                    ) #fluidRow close
@@ -213,6 +207,38 @@ mod_plot_server <- function(id,plot_type,r){
 
     })
 
+    output$input_xlab=renderUI({
+      req(not_null(r$ngroups))
+      n=length(levels(as.factor(r$d3$treatment)))
+      if(n==2){
+        g1=levels(as.factor(r$d3$treatment))[1]
+        g2=levels(as.factor(r$d3$treatment))[2]
+      }else if(r$ngroups==2){
+        req(not_null(r$groups))
+        g1=r$groups[1]
+        g2=r$groups[2]
+      }else{
+        req(input$select_2)
+        g1=strsplit(input$select_2, ", ")[[1]][1]
+        g2=strsplit(input$select_2, ", ")[[1]][2]
+      }
+      textInput(ns("xlab"),label = "X-axis label",
+                value = switch(plot_type,
+                               "eda_box_1"="runID",
+                               "eda_hist_1"="number of detected proteins in each run",
+                               "ag_box_1"="sampleID",
+                               "ag_hist_1"="number of detected proteins in each sample",
+                               "ag_bar_1"="number of detections of one protein within one sample",
+                               "an_volcano_1"={
+                                 req(r$analysedTF==TRUE)
+                                 paste0("Difference of group medians (",
+                                                     g1,"-",g2,")")
+                               }
+
+                ))
+    })
+    outputOptions(output, "input_xlab", suspendWhenHidden=FALSE)
+
     output$input_ylab=renderUI({
       textInput(ns("ylab"),label = "Y-axis label",
                 value = switch(plot_type,
@@ -221,12 +247,49 @@ mod_plot_server <- function(id,plot_type,r){
                                "ag_box_1"="abundances",
                                "ag_hist_1"="count",
                                "ag_bar_1"="count",
-                               "an_volcano_1"=ifelse(input$select_1=="original",
-                                                     ifelse(r$ngroups==2,"-log10(p-value)","Overall -log10(p-value)"),
-                                                     ifelse(r$ngroups==2,"-log10(adjusted p-value)","Overall -log10(adjusted p-value)"))
+                               "an_volcano_1"=ifelse(r$ngroups==2,
+                                                     ifelse(input$select_1=="original","-log10(p-value)","-log10(adjusted p-value)"),
+                                                     ifelse(r$an_method=="anova","-log10(Tukey adjusted p-value)","-log10(Dunn adjusted p-value)")
+                               )
                                ))
     })
     outputOptions(output, "input_ylab", suspendWhenHidden=FALSE)
+
+    output$input_firstB=renderUI({
+      req(not_null(r$ngroups))
+      n=length(levels(as.factor(r$d3$treatment)))
+      if(n==2){
+        g=levels(as.factor(r$d3$treatment))[1]
+      }else if(r$ngroups==2){
+        req(not_null(r$groups))
+        g=r$groups[1]
+      }else{
+        req(input$select_2)
+        g=strsplit(input$select_2, ", ")[[1]][1]
+      }
+      textInput(ns("firstB"),"Label for significant positive difference",
+                          value=paste0(g," up-regulated")
+      )
+    })
+    outputOptions(output, "input_firstB", suspendWhenHidden=FALSE)
+
+    output$input_secondB=renderUI({
+      req(not_null(r$ngroups))
+      n=length(levels(as.factor(r$d3$treatment)))
+      if(n==2){
+        g=levels(as.factor(r$d3$treatment))[1]
+      }else if(r$ngroups==2){
+        req(not_null(r$groups))
+        g=r$groups[1]
+      }else{
+        req(input$select_2)
+        g=strsplit(input$select_2, ", ")[[1]][1]
+      }
+      textInput(ns("secondB"),"Label for significant negative difference",
+                value=paste0(g," down-regulated")
+      )
+    })
+    outputOptions(output, "input_secondB", suspendWhenHidden=FALSE)
 
     ####Data preparation----
 
@@ -322,6 +385,7 @@ mod_plot_server <- function(id,plot_type,r){
              "an_volcano_1"={
                req(not_null(r$results))
                d=r$results
+               if(r$ngroups==2){ #t-test/wilcoxon
                #Keep just the selected form of p-value:
                if(input$select_1=="original"){
                  d$adj.p.value=NULL
@@ -329,16 +393,32 @@ mod_plot_server <- function(id,plot_type,r){
                    d$p.value=NULL
                    names(d)[grepl("value",names(d))]="p.value"
                  }
-               #-log10(p-value):
-               d$log_pval=(-1)*log10(d$p.value)
+                 #-log10(p-value):
+                 d$log_pval=(-1)*log10(d$p.value)
+               }else{ #anova/kw with MC
+                 pair_string=paste(strsplit(input$select_2, ", ")[[1]],collapse="_")
+                 rev_pair_string=paste(rev(strsplit(pair_string, "")[[1]]), collapse = "")
+                 d$log_pval=switch(r$an_method,
+                                   "anova"={if(sum(grepl(paste0("^tukey.+",pair_string,"$"), names(d)))>0){
+                                     (-1)*log10(d[,grepl(paste0("^tukey.+",pair_string,"$"), names(d))])
+                                      }else{
+                                        (-1)*log10(d[,grepl(paste0("^tukey.+",rev_string,"$"), names(d))])
+                                      }},
+                                   "kw.test"={if(sum(grepl(paste0("^dunn.+",pair_string,"$"), names(d)))>0){
+                                     (-1)*log10(d[,grepl(paste0("^dunn.+",pair_string,"$"), names(d))])
+                                   }else{
+                                     (-1)*log10(d[,grepl(paste0("^dunn.+",rev_string,"$"), names(d))])
+                                   }},
+                                   NULL
+                 )
+               }
+
 
                #diff column (x-axis of the volcano):
                if(r$ngroups==2){ #two groups (t-test/wilcoxon):
                  #Rename diffmedian of the only pair:
                  names(d)[grepl("diffm",names(d))]="diff"
                }else{ #more than 2 groups (anova/kw):
-                 pair_string=paste(strsplit(input$select_2, ", ")[[1]],collapse="_")
-                 rev_pair_string=paste(rev(strsplit(pair_string, "")[[1]]), collapse = "")
                  if(sum(grepl(paste0("^diffm.+",pair_string,"$"), names(d)))>0){
                    names(d)[grepl(paste0("^diffm.+",pair_string,"$"), names(d))]="diff"
                  }else{
@@ -351,8 +431,14 @@ mod_plot_server <- function(id,plot_type,r){
                  mutate(threshold = if_else(diff >= input$diffthresh & log_pval >= (-1)*log10(input$pvalthresh),
                                             input$firstB,
                                             if_else(diff <= (-1)*input$diffthresh & log_pval >= (-1)*log10(input$pvalthresh),
-                                                    input$secondB,input$nonsig)
-                 ))
+                                                    input$secondB,
+                                                    if_else(abs(diff)<input$diffthresh & log_pval >= (-1)*log10(input$pvalthresh),
+                                                            input$incon,
+                                                            input$nonsig)
+                                            ))
+                 )
+
+               r$results$threshold=d$threshold
                d
              }, #an_volcano_1 close
              NULL)
@@ -580,15 +666,20 @@ mod_plot_server <- function(id,plot_type,r){
                    legend.text = element_text(size=input$legend_text_size)
                  )+
                  ggrepel::geom_text_repel(
-                   data = subset(dTOplot(), threshold!=input$nonsig),
+                   data = subset(dTOplot(), threshold%in%c(input$firstB,input$secondB)),
                    aes(diff,log_pval, label = Accession),
-                   alpha = 0.6, max.overlaps = 50)
+                   alpha = 0.6, max.overlaps = 50)+
+                 scale_color_manual(values=magrittr::set_names(c("black","grey","green", "red"),
+                                                               c(as.character(input$nonsig),
+                                                                 as.character(input$incon),
+                                                                 as.character(input$firstB),
+                                                                 as.character(input$secondB))))
 
                an_volcano_1
              }, #an_volcano_1 close
              NULL) #switch close
 
-    }) #plot close
+    }) #splot close
 
     plot=eventReactive(input$render | input$apply,{
       req(not_null(splot()))
@@ -701,6 +792,15 @@ mod_plot_server <- function(id,plot_type,r){
     if(plot_type=="ag_box_1"){
       shinyjs::hide("select_1")
     }
+
+    observe({
+      req(r$ngroups)
+      if(r$ngroups>2 & plot_type=="an_volcano_1"){
+        shinyjs::hide("select_1")
+      }else{
+        shinyjs::show("select_1")
+      }
+    })
 
 
 
