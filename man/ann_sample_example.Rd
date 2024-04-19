@@ -7,7 +7,7 @@
 \format{
 A data frame with 50 rows and 5 columns:
 \describe{
- \item{sampleID: }{A column with **unique** sample IDs (one for each patient). It consists of
+ \item{sampleID: }{A column with \bold{unique} sample IDs (one for each patient). It consists of
  a letter indicating a treatment group and a number indicating the patient
  number within the group. E.g. ID A2 stands for the second patient within a
  treatment group A.}
@@ -26,7 +26,7 @@ A data frame with 50 rows and 5 columns:
 ann_sample_example
 }
 \description{
-This dataset contains sample annotations for *data_example* dataset
+This dataset contains sample annotations for \strong{data_example} dataset
 to be used in a proteoME Shiny app.
 }
 \keyword{datasets}
