@@ -60,6 +60,11 @@ mod_analysis_server <- function(id,r){
       r$an_method=input$method
     })
 
+    observe({
+      req(not_null(input$groups))
+      r$groups=input$groups
+    })
+
     #####Reactive inputs ----
     output$input_ngroups=renderUI({
       req(not_null(r$d3))
@@ -126,7 +131,8 @@ mod_analysis_server <- function(id,r){
           #filter columns we don't need:
           ind=which(groups %in% input$groups)
           dTOtest=dTOtest[,ind]
-          groups=groups[ind]
+          groups=factor(groups[ind],levels = intersect(levels(as.factor(r$d3$treatment)),
+                                                       unique(groups[ind])))
         }
         #Do we have enough data?
         n=min(unlist(apply(dTOtest,1,function(x){
