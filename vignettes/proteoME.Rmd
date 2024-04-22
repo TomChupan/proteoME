@@ -1,6 +1,7 @@
 ---
 title: "proteoME"
 output: rmarkdown::html_vignette
+bibliography: REFERENCES.bib
 vignette: >
   %\VignetteIndexEntry{proteoME}
   %\VignetteEngine{knitr::rmarkdown}
@@ -14,6 +15,105 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+*proteoME* is a shiny app made as an R package. You can run the shiny app like so:
+```{r setup,eval=FALSE}
 library(proteoME)
+run_app()
 ```
+The package itself contains 3 example datasets (protein abundances (at the run level), run annotations and sample annotation) which you can use both outside the app and within the app ('Use example data' buttons on the first tab). Calling them outside the app is possible like so:
+```{r datasets,eval=FALSE}
+d1=data_example #abundances
+d2=ann_run_example #run annotations
+d3=ann_sample_example #sample annotations
+```
+
+The app has 8 tabs to handle all proteomics data tasks - let's introduce them briefly.
+
+## Data import
+
+The initial tab is used to import all three datasets. There are helper documents (question mark icon) that describe in detail what form the uploaded data should be in. If the abundance dataset is already normalized or imputed, the user checks the appropriate checkbox. For sample annotations, clicking on the 'Set factors/levels' button can change the columns of this dataset to factors, and even modify the labels or order of their levels. A 'Guide' button with detailed instructions is also available in the window for this modification.
+
+One can also download any of these imported datasets (especially the one with abundances even after transformation and normalization - see below) with the *Download (.csv)* button.
+
+![Data import tab](`r system.file("app/www/di.png", package = "proteoME")`){width=90%}
+
+## Exploratory data analysis
+
+On the second tab the user can render two basic plots - boxplot of abundances by runs and histogram of detected proteins in each run. Detailed help on these plots can be obtained by clicking on the question mark icon in the corresponding menu item. The appearance of both plots can be edited by clicking on the 'Edit plot appearance' button. A window will appear divided into two parts: General plot appearance (common for both plots) and Features specific to the plot type (special options for boxplot, histogram and other plots - this feature is also available at the next tabs). You can download the plots in .png and .html format (.html for keeping interactive elements).
+
+![Exploratory data analysis tab](`r system.file("app/www/eda.png", package = "proteoME")`){width=90%}
+
+## Transformation
+
+On this tab, you can transform abundances using a logarithmic or square root transformation. There is also an option to use the log(x+1) function in case there are zeros in the dataset. The base of the logarithm is fixed to 2. In the body of the dashboard there are tables with summary statistics of the data matrix (current state and preview with the chosen transformation) -> the user can thus better decide which transformation (if any) is suitable for him/her. Summary statistics can be calculated overall or by treatment group.
+
+![Transformation tab](`r system.file("app/www/trans.png", package = "proteoME")`){width=90%}
+
+## Normalization
+
+There are 4 normalization methods available: 
+
+* median normalization [@n1]
+* quantile normalization [@n2]
+* 2 version of MBQN [@n3]
+    * median-balanced quantile normalization
+    * mean-balanced quantile normalization
+    
+This time there is a pair of boxplots in the app body (practically the same as the boxplot on the Exploratory data analysis tab). The upper one is rendered based on the current version of the dataset, the lower boxplot responds to the choice of the normalization method and helps the user to at least visually evaluate which method will be the most suitable for his/her dataset.
+
+![Normalization tab](`r system.file("app/www/norm.png", package = "proteoME")`){width=90%}
+
+## Aggregation
+
+Sidebar menu is devided into 2 parts: *Before the aggregation* and *Aggregation process*. You can check a couple of plots before you aggregate the data at the sample level (helper documents included - see the question mark icon). 
+
+![Aggregation tab - 'Before the aggregation'](`r system.file("app/www/ag1.png", package = "proteoME")`){width=90%}
+
+These plots are therefore intended to facilitate the decision on how to set the aggregation parameter - the number *n*, which sets a limit on the percentage of files (replicates) of a given sample in which the protein has to be quantified in order to include its abundances in the aggregation process. If the protein meets this condition in a given sample, its resulting abundance in the sample is calculated as the average or median of the abundances of the quantified replicates - this is decided by the user in the *Aggregate dataset* side menu, where they also choose the value of the parameter *n*. Aggregating the data does not affect the file-level datasets we worked with on the previous tabs.
+
+![Aggregation tab - 'Aggregation process'](`r system.file("app/www/ag2.png", package = "proteoME")`){width=90%}
+
+After successful aggregation, the user will see a table of abundances in the body of the application similar to the one available on the initial tab - this time with the data at the sample level. The aggregated dataset can be downloaded using the *Download (.csv)* button that appears in the menu instead of selecting the aggregation parameters. There is now also a button to reset the aggregation process. This is very important for further use of the application. If the user wants to change the method or parameters used after filtering or imputation, he/she must use this button and re-aggregate the data. After the aggregation, the sample-level data can be viewed using the already "familiar" pair of plots introduced under the Exploratory data analysis tab - boxplots of abundances and histogram of the number of detected proteins.
+
+## Filtering
+
+This tab is used to reduce rows with too many missing values. The menu consists of two inputs. The first one complements the "Keep protein when it is quantified in at least:" guideline with one of the following options:
+* n % of all samples
+* n % of samples within at least one treatment group
+* n % of samples within each treatment group
+
+The second input is just the value of the parameter *n*. In the app body there is a trio of infoboxes before the filtering is performed. The first one just contains the current number of rows (proteins) in the abundance data matrix, the other two are interactive and react to the selected method and filtering parameter - this is to help the user decide under which conditions to filter. These interactive boxes recalculate the numbers of proteins that would be filtered out of the data under the current settings and the number of proteins that remain in the data under these parameters (both values are also shown here as percentages). For even greater user clarity, below these infoboxes are two pairs of missingness plots showing the percentage of NA's - one at the protein level and one at the sample level within each pair. The top pair is static, calculated from the current version of the dataset. The bottom pair, however,  changes interactively according to the selected filtering parameters. 
+
+![Filtering tab](`r system.file("app/www/f.png", package = "proteoME")`){width=90%}
+
+Only the infobox with the current number of rows and the pair of visualizations of missing values also calculated from the current - already filtered - data remains after filtering.
+
+## Imputation
+
+There are 3 imputation (replacing missing values with a number) methods available: 
+
+* SampMin (minimum within a sample) [@i1]
+* kNN [@i2]
+* random forests (RF) [@i3]
+
+For kNN, the user sets the value of the parameter *k* (\uv{number of neighbours}), while for *RF* it is possible to change the number of decision trees created in each iteration of the random forest process. In addition, a "set seed" option is available for this method to ensure that the same results are obtained if the user attempt imputation using this method repeatedly.
+
+In the application body, there is a pair of heatmaps with abundance values - the upper (static) heatmap is drawn based on the current form of the aggregated (or even filtered) dataset, the lower (dynamically changing) heatmap shows the possible form of the dataset when imputed using the currently selected method and with the specified parameters. Above the heatmaps, there is also a numeric input to select the number of clusters (for protein clustering). The number of clusters is only a visual element and has no effect on imputation process.
+
+![Imputation tab](`r system.file("app/www/na.png", package = "proteoME")`){width=90%}
+
+## Analysis
+
+The menu on the sidebar is divided into two parts - the first one is used for the analysis process itself, the second one for plotting and editing the volcano plot. For the part controlling the data analysis, the user first has a numerical input indicating the number of treatment groups he wants to compare. The minimum number of groups is two, the maximum is determined by the total number of groups in the data. If the selected and maximum number are not equal (situations where we want to include only some treatment groups in the analysis), a group selection window will appear below this input. The number of groups selected must match the number in the input above. According to the total number of groups to be compared, the list of tests to perform the analysis also changes dynamically - for two-sample comparisons the t-test and Wilcoxon test are available, for multiple group testing we choose between ANOVA and Kruskal-Wallis test - for these tests, the user is given the choice of a threshold p-value to mark a pair of groups as significantly different in distribution in the multiple comparisons (Tukey, Dunn) that follow these tests. After selecting the appropriate test, simply press the *Analyse* button - a table with the results will appear in the body of the application.
+
+![Analysis tab - table with results](`r system.file("app/www/an1.png", package = "proteoME")`){width=90%}
+
+There is a wide range of options for exporting this table. There is a simple copy to the clipboard (*Copy* button above the table), so that the user can paste the table wherever he/she needs. Moreover, the user can download the table in one of three formats (.csv, .xlsx, .pdf) - these are hidden in the *Download* drop-down menu next to the *Copy* button. Just be careful that only those rows that are currently in the table on that page are exported (the export process ignores data on other pages of the table). If the user wants to export all the data at once, he/she must also display all of them by setting *Show \strong{All} entries*.
+
+![Analysis tab - export options for the table with results](`r system.file("app/www/an2.png", package = "proteoME")`){width=90%}
+
+Volcano plot: there is a helper document with a detailed description of the volcano plot (question mark icon) - so I refer to that document.
+
+![Analysis tab - volcano plot](`r system.file("app/www/an3.png", package = "proteoME")`){width=90%}
+
+### References
