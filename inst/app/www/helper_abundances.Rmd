@@ -33,9 +33,7 @@ table {
 
 ## Column specifications
 
-* First column: *Accession* – an UniProt accession number – a unique identifier assigned
-  to a protein entry in the UniProt Knowledgebase (UniProtKB).
-  See https://www.uniprot.org/
+* First column: *Accession* – an UniProt accession number – a unique identifier assigned to a protein entry in the UniProt Knowledgebase (UniProtKB). See https://www.uniprot.org/
   
 * Other columns: *F#* – columns with protein abundances for each run
   (several runs may come from one patient – replicates). Each column name must contain
@@ -43,4 +41,9 @@ table {
   numbers or *NA* indicating a missing value.
   
 <span style="font-size:1.5em;">**The form of the above column names is mandatory!**</span>
+
+## Zeros in this dataset
+
+If there are zeros in your dataset, the option to replace them with missing values will appear (*Replace zeros with NA's* button). You don't have to use this option, but be aware that zeros are treated like any other quantified value during aggregation.
+
 

@@ -12,25 +12,19 @@ output: html_document
 
 * *Do you want to change the levels (e.g. from treatment levels 'A', 'B' to the levels 'healthy', 'ill') or their order (especially the reference category)?*
 
-```{r,echo=F,include=F,eval=FALSE}
-#or a color assigned to the level?
-```
-
+<!--or a color assigned to the level?-->
 
 **Step 2b:** modify the cells in columns 'New_Levels' and 'New_Order' according to your requirements.
 
-```{r,echo=F,include=F,eval=FALSE}
-#and 'Color'
-```
+<!--and 'Color'-->
 
 ### Rules for modyfying cells
 
 * Any cell mustn't remain empty
 * 'New_Levels': individual levels must be unique within one variable
 * 'New_Order': numbers must be only a permutation of 'Original_Order' within one variable
-```{r,echo=F,include=F,eval=FALSE}
-#* 'Color': provide a color name (any from *colors()* function) for levels. No #recommendation, just choose wisely. Default: numbers from 1 to number of levels #within one variable (based on *palette()* function. **BUT** when one variable has #more than 8 levels, you have to provide color names for levels 9, 10... – #*palette()* has only 8 colors.
-```
+
+<!--* 'Color': provide a color name (any from *colors()* function) for levels. No #recommendation, just choose wisely. Default: numbers from 1 to number of levels #within one variable (based on *palette()* function. **BUT** when one variable has #more than 8 levels, you have to provide color names for levels 9, 10... – #*palette()* has only 8 colors.-->
 
 ## Next launches of this editing tool
 
@@ -39,16 +33,14 @@ output: html_document
   * relevel (or change order of their levels)
       * those are variables you have turned to factors in one of the previous launches
       
-```{r,echo=F,include=F,eval=FALSE}
-#do závorky za levels:/change color of their levels
-```
+<!--do závorky za levels:/change color of their levels-->
       
 **Step 2a** and **Step 2b** remains the same as well as the rules for modyfing cells
 
 <span style="font-size:1.25em;">**REMEMBER: once you change some variable to factor, it cannot be undone, you can only change its levels/order of levels!**</span>
-```{r,echo=F,include=F,eval=FALSE}
-#/color of levels
-```
+
+<!--/color of levels-->
+
 Advantage: When you want to make a minor change to one of the variables, you do not have to select and modify other variables (unchanging at that moment) that you have previously turned into factors – they remain in the same form as you saved them.
 
 Disadvantage: When you decide to change a variable back to something 'non-factor', you have to reset your data and upload it again. **BUT** you can at least download the most up-to-date version of the dataset (see the Download button). After reloading this downloaded dataset, the character variables are characters again!
