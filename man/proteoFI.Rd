@@ -19,16 +19,16 @@ every sample/column.}
 \item{ann_sample}{Data frame with sample annotations in the same form as
 ann_sample_example (see ?proteoME::ann_sample_example).}
 
+\item{n}{A number between 1 and 100 that represents the minimum required percentage
+of samples with a quantified protein. Every protein with relative quantification
+below this value (depending on the selected method - see 'method') will be removed.}
+
 \item{method}{It can be one of these 3 values: 1) "all": protein is kept in the dataset
 when it is quantified in at least 'percent' % of all samples. 2) "onegroup":
 protein is kept in the dataset when it is quantified in at least 'percent' %
 of samples within at least one treatment group. 3) "eachgroup":
 protein is kept in the dataset when it is quantified in at least 'percent' %
 of samples within each treatment group.}
-
-\item{percent}{A number between 1 and 100 that represents the minimum required percentage
-of samples with a quantified protein. Every protein with relative quantification
-below this value (depending on the selected method - see 'method') will be removed.}
 }
 \value{
 A data frame with the filtered abundances.

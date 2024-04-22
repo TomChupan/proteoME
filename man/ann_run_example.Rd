@@ -28,7 +28,7 @@ A data frame with 100 rows and 6 columns:
 ann_run_example
 }
 \description{
-This dataset contains run annotations for *data_example* dataset
+This dataset contains run annotations for \strong{data_example} dataset
 to be used in a proteoME Shiny app.
 }
 \keyword{datasets}

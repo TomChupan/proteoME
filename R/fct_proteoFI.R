@@ -10,7 +10,7 @@
 #' @param ann_sample Data frame with sample annotations in the same form as
 #' ann_sample_example (see ?proteoME::ann_sample_example).
 #'
-#' @param percent A number between 1 and 100 that represents the minimum required percentage
+#' @param n A number between 1 and 100 that represents the minimum required percentage
 #' of samples with a quantified protein. Every protein with relative quantification
 #' below this value (depending on the selected method - see 'method') will be removed.
 #'
