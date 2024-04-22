@@ -1,6 +1,6 @@
 # filter UI Function
 
-#' #' @title mod_filter_ui and mod_filter_server
+#' @title mod_filter_ui and mod_filter_server
 #' @description A shiny Module containing sidebar content for data filtering.
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
@@ -110,8 +110,7 @@ mod_filter_server <- function(id,r){
     ####After filtering ----
     observeEvent(input$filcheck,{
       shinyalert(title = "Your dataset has already been filtered!",
-                 text="If you want to change the filtering method or parameters, you need to
-                 re-aggregate the data on the previous tab.",
+                 text="If you want to change the filtering method or parameters, you need to re-aggregate the data on the previous tab.",
                  showConfirmButton = TRUE, type = "info")
     })
 

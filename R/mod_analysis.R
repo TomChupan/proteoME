@@ -12,7 +12,7 @@
 #' @importFrom dplyr %>% group_by summarise across everything mutate_if
 #' @importFrom shinyFeedback showFeedbackWarning hideFeedback
 #' @importFrom rstatix dunn_test
-
+#' @importFrom stats TukeyHSD aggregate aov kruskal.test median na.pass p.adjust quantile t.test wilcox.test
 mod_analysis_ui <- function(id){
   ns <- NS(id)
   tagList(

@@ -19,6 +19,7 @@
 #' @importFrom shinydashboard sidebarMenu menuItem
 #' @importFrom shinyalert shinyalert
 #' @importFrom tools file_ext
+#' @importFrom utils write.csv
 #' @importFrom vroom vroom
 #' @importFrom shinyjs hidden hide show reset
 #' @importFrom tidyr pivot_longer
@@ -132,9 +133,9 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
 
       r[[paste0("d",data_type)]]=switch(format(),
                                         csv = vroom(infile$datapath,show_col_types = F,
-                                                    guess_max = Inf),
+                                                    delim=",",guess_max = Inf),
                                         txt = vroom(infile$datapath,show_col_types = F,
-                                                    guess_max = Inf)
+                                                    delim="\t",guess_max = Inf)
 
 
       )
@@ -233,9 +234,7 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
       switch(data_type,
              {updateCheckboxGroupInput(session,inputId="data_char",selected = character(0))
              shinyjs::hide("data_char")
-             if(sum(r$d1[,-1]==0,na.rm=T)>0){
              shinyjs::hide("zerosTOna")
-             }
              r$data_char=NULL
              },
              NULL,
@@ -250,8 +249,10 @@ mod_upload_server <- function(id,data_type=c(1,2,3),r){
     observe({
       r$data_char=input$data_char
       if("normalized"%in%input$data_char){
+        r$transformedTF=TRUE
         r$normalizedTF=TRUE
       }else{
+        r$transformedTF=FALSE
         r$normalizedTF=FALSE
       }
       if("imputed"%in%input$data_char){

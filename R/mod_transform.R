@@ -53,8 +53,7 @@ mod_transform_server <- function(id,r){
       if(all(r$d1[,-1]>0,na.rm = T) | input$method!="log2(x)"){
       ask_confirmation(inputId = "confirm",title = "Are you sure?",
                        text = "The previous form of the dataset will be irretrievably lost! Make sure you have downloaded it or no longer need it.
-                       You will also lost any aggregation, filtering or imputation steps as well
-                       as analysis results.",
+                       You will also lost any aggregation, filtering or imputation steps as well as analysis results.",
                        type = "info",cancelOnDismiss = T,
                        btn_labels = c("No, I'll think about it.","Yes, transform it!")
                        )
@@ -77,6 +76,7 @@ mod_transform_server <- function(id,r){
         r$eda_hist_1=NULL
         #Indicator:
         r$transformedTF=TRUE
+        r$turnoff_data_char=TRUE
         r$aggregatedTF=FALSE
         r$filteredTF=FALSE
         r$imputedTF=FALSE

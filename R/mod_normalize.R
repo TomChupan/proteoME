@@ -59,8 +59,7 @@ mod_normalize_server <- function(id,r){
       req(not_null(r$d1) & not_null(r$d2) & not_null(r$d3))
         ask_confirmation(inputId = "confirm",title = "Are you sure?",
                          text = "The previous form of the dataset will be irretrievably lost! Make sure you have downloaded it or no longer need it.
-                         You will also lost any aggregation, filtering or imputation steps as well
-                         as any analysis results.",
+                         You will also lost any aggregation, filtering or imputation steps as well as any analysis results.",
                          type = "info",cancelOnDismiss = T,
                          btn_labels = c("No, I'll think about it.","Yes, normalize it!")
         )
@@ -100,6 +99,7 @@ mod_normalize_server <- function(id,r){
         shinyalert(title = "Your dataset has been successfully normalized!",
                    text="You can check the dataset on the previous tabs or proceed to the following analysis steps in a few seconds after closing this window (we need to recalculate something :-).",
                    showConfirmButton = TRUE, type = "success")
+        shinyjs::hide("method")
         shinyjs::hide("normalize")
         shinyjs::show("normcheck")
       }
@@ -115,6 +115,7 @@ mod_normalize_server <- function(id,r){
     ####Resets----
     observe({
       if(r$normalizedTF==FALSE){
+        shinyjs::show("method")
         shinyjs::show("normalize")
         shinyjs::hide("normcheck")
       }
@@ -123,6 +124,7 @@ mod_normalize_server <- function(id,r){
     ####Normalized from the start ----
     observe({
       if("normalized"%in%r$data_char){
+        shinyjs::hide("method")
         shinyjs::hide("normalize")
         shinyjs::show("normcheck")
       }

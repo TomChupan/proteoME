@@ -40,7 +40,7 @@ observeEvent(r$edit_factors_button, {
         footer = tagList(
           column(1,actionButton(ns("help"),"Guide")),
           column(6),
-          column(2,actionButton(ns("apply_changes"), "Apply Changes")),
+          column(2,actionButton(ns("apply_changes"), "Apply changes")),
           column(2,actionButton(ns("close"), "Close without changes"))
         ),
         fluidPage(

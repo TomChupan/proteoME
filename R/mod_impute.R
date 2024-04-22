@@ -96,11 +96,8 @@ mod_impute_server <- function(id,r){
                    showConfirmButton = TRUE, type = "info")
       }else{
         ask_confirmation(inputId = "confirm",title = "Are you sure?",
-                         text = "The previous form of the dataset (non-imputed aggregated/filtered
-                         data) will be irretrievably lost and replaced by the imputed dataset!
-                         Make sure you have downloaded it or no longer need it.
-                         Any analysis results (table, volcano plot) will be deleted.
-                         The imported form of the dataset (by runs) will still be available.",
+                         text = "The previous form of the dataset (non-imputed aggregated/filtered data) will be irretrievably lost and replaced by the imputed dataset! Make sure you have downloaded it or no longer need it.
+                         Any analysis results (table, volcano plot) will be deleted. The imported form of the dataset (by runs) will still be available.",
                          type = "info",cancelOnDismiss = T,
                          btn_labels = c("No, I'll think about it.","Yes, impute it!")
         )
@@ -159,8 +156,7 @@ mod_impute_server <- function(id,r){
     ####After imputation ----
     observeEvent(input$imcheck,{
       shinyalert(title = "Your dataset has already been imputed!",
-                 text="If you want to change the imputation method or parameters, you need to
-                 re-aggregate the data on the 'Aggregate' tab.",
+                 text="If you want to change the imputation method or parameters, you need to re-aggregate the data on the 'Aggregate' tab.",
                  showConfirmButton = TRUE, type = "info")
     })
 
