@@ -15,19 +15,21 @@ mod_aggregate_ui <- function(id){
   ns <- NS(id)
   tagList(
     tags$head(
-      tags$style(".button {background-color:#90EE90;}
-                  .custom-h4 {margin-left: 10px;}
-                 ")
+      tags$style(
+        HTML(paste0("#",ns("help"),"{display: inline;margin: 0px;}
+                    .button {background-color:#90EE90;}
+                    .custom-h4 {margin-left: 10px;}")
+        ))
     ),
     sidebarMenu(
       menuItem(text="Heatmap of detections within sample",
                startExpanded = F,
-               #br(),
-               #HTML("What does this plot show",as.character(
-               #  actionLink(inputId = ns("help"),
-               #             label = "",
-               #             icon = icon("circle-question")))
-               #),
+               br(),
+               HTML("What does this plot show",as.character(
+                 actionLink(inputId = ns("help"),
+                            label = "",
+                            icon = icon("circle-question")))
+               ),
                actionButton(ns("heatmap"),"Render heatmap",icon = icon("play"))
                ),
       h4("Aggregation process:",class="custom-h4"),
@@ -79,9 +81,8 @@ mod_aggregate_server <- function(id,r){
     observeEvent(input$aggregate,{
       req(not_null(r$d1) & not_null(r$d2) & not_null(r$d3))
         ask_confirmation(inputId = "confirm",title = "Are you sure?",
-                         text = "Have you checked all available visualization tools in the
-                         'Before the agregation' section? The previous form of the dataset
-                         (by runs) will still be available.",
+                         text = "Have you checked all available visualization tools in the 'Before the agregation' section?
+                         The previous form of the dataset (by runs) will still be available.",
                          type = "info",cancelOnDismiss = T,
                          btn_labels = c("No, I'll think about it.","Yes, aggregate it!")
         )
@@ -158,7 +159,6 @@ mod_aggregate_server <- function(id,r){
       }
     })
 
-
     ####Download ----
     output$download = downloadHandler(
       filename = function() {
@@ -170,16 +170,16 @@ mod_aggregate_server <- function(id,r){
     )
 
     ####Helpers ----
-    #observeEvent(input$help,{
-    #  showModal(
-    #    modalDialog(
-    #      includeMarkdown(app_sys("app/www/helper_ag_heatmap_1.Rmd")),
-    #      footer = modalButton("Close"),
-    #      size="l",
-    #      easyClose = T
-    #    )
-    #  )
-    #})
+    observeEvent(input$help,{
+      showModal(
+        modalDialog(
+          includeMarkdown(app_sys("app/www/helper_ag_heatmap.Rmd")),
+          footer = modalButton("Close"),
+          size="l",
+          easyClose = T
+        )
+      )
+    })
 
 
   })
