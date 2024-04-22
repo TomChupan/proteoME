@@ -23,10 +23,10 @@ knitr::opts_chunk$set(
 This package will serve as a useful tool when working with proteomics data. Its main feature is a shiny app that allows you to:
 
 * import your dataset
-* deal with missing values
-* normalize data
+* transform and normalize data
 * aggregate data
-* analyze data (both univariate and multivariate analysis)
+* deal with missing values (filtering, imputation)
+* analyze data (result table with p-values, volcano plot)
 
 ## Installation
 
