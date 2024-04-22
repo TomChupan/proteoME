@@ -55,25 +55,7 @@ mod_plot_ui <- function(id,plot_type,menuItem_label){
                             label = "",
                             icon = icon("circle-question")))
                ),
-               selectInput(ns("select_1"),
-                           label=switch(plot_type,
-                                        "eda_box_1"="Select the form of abundances:",
-                                        "eda_hist_1"="Select the grouping option:",
-                                        "ag_hist_1"="Select the grouping option:",
-                                        "ag_bar_1"="Select the grouping option:",
-                                        "an_volcano_1"="Select the type of p-value:",
-                                        NULL),
-                           choices = switch(plot_type,
-                                            "eda_box_1"=c("just the values"="original",
-                                                          "log-transformed","log2(x+1)",
-                                                          "square root"),
-                                            "eda_hist_1"=c("without grouping","with grouping"),
-                                            "ag_hist_1"=c("without grouping","with grouping"),
-                                            "ag_bar_1"=c("without grouping","with grouping"),
-                                            "an_volcano_1"=c("original p-value"="original",
-                                                             "adjusted p-value"="adjusted"),
-                                            NULL),multiple = F
-               ), #selectInput close
+               uiOutput(ns("input_select_1")),
                uiOutput(ns("input_select_2")),
 
       ####Dropdown button ----
@@ -192,6 +174,32 @@ mod_plot_server <- function(id,plot_type,r){
     ns <- session$ns
 
     ####Interactive inputs----
+    output$input_select_1=renderUI({
+      selectInput(ns("select_1"),
+                  label=switch(plot_type,
+                               "eda_box_1"="Select the form of abundances:",
+                               "eda_hist_1"="Select the grouping option:",
+                               "ag_hist_1"="Select the grouping option:",
+                               "ag_bar_1"="Select the grouping option:",
+                               "an_volcano_1"="Select the type of p-value:",
+                               NULL),
+                  choices = switch(plot_type,
+                                   "eda_box_1"={
+                                     if(r$transformedTF==F & r$normalizedTF==F){
+                                       c("just the values"="original",
+                                                 "log-transformed","log2(x+1)",
+                                                 "square root")}else{
+                                        c("just the values"="original")
+                                                 }},
+                                   "eda_hist_1"=c("without grouping","with grouping"),
+                                   "ag_hist_1"=c("without grouping","with grouping"),
+                                   "ag_bar_1"=c("without grouping","with grouping"),
+                                   "an_volcano_1"=c("original p-value"="original",
+                                                    "adjusted p-value"="adjusted"),
+                                   NULL),multiple = F
+      )
+    })
+
     output$input_select_2=renderUI({
       req(not_null(r$ngroups))
       req(plot_type=="an_volcano_1" & r$ngroups>2)
@@ -208,6 +216,7 @@ mod_plot_server <- function(id,plot_type,r){
     })
 
     output$input_xlab=renderUI({
+      if(plot_type=="an_volcano_1"){
       req(not_null(r$ngroups))
       n=length(levels(as.factor(r$d3$treatment)))
       if(n==2){
@@ -221,6 +230,7 @@ mod_plot_server <- function(id,plot_type,r){
         req(input$select_2)
         g1=strsplit(input$select_2, ", ")[[1]][1]
         g2=strsplit(input$select_2, ", ")[[1]][2]
+      }
       }
       textInput(ns("xlab"),label = "X-axis label",
                 value = switch(plot_type,
@@ -240,6 +250,7 @@ mod_plot_server <- function(id,plot_type,r){
     outputOptions(output, "input_xlab", suspendWhenHidden=FALSE)
 
     output$input_ylab=renderUI({
+      req(input$select_1)
       textInput(ns("ylab"),label = "Y-axis label",
                 value = switch(plot_type,
                                "eda_box_1"="abundances",
@@ -373,6 +384,10 @@ mod_plot_server <- function(id,plot_type,r){
                        sum(apply(r$d_detected[, id], 1, function(x) sum(x == value)))
                      })
                  }
+                 if(is.factor(r$d3$treatment)==T){
+                   d$treatment=factor(d$treatment,levels = levels(r$d3$treatment))
+                 }
+
                  d=d %>%
                    group_by(treatment) %>%
                    mutate(relative_count = count/sum(count)*100)
@@ -381,6 +396,7 @@ mod_plot_server <- function(id,plot_type,r){
                                         round(d$relative_count,2), "%)")
                }
                d
+
              }, #ag_bar_1 close
              "an_volcano_1"={
                req(not_null(r$results))
@@ -647,7 +663,7 @@ mod_plot_server <- function(id,plot_type,r){
              "an_volcano_1"={
                an_volcano_1=ggplot(data=dTOplot(),aes(x=diff,y=log_pval,
                                                       colour = threshold))+
-                 geom_point_interactive(aes(tooltip = paste0("Accession: ", Accession, "<br>",
+                 geom_point_interactive(aes(tooltip = paste0("Accession number: ", Accession, "<br>",
                                                              "Difference of group medians: ",
                                                              round(diff,3), "<br>",
                                                              ifelse(input$select_1=="original",
@@ -754,7 +770,8 @@ mod_plot_server <- function(id,plot_type,r){
                  "eda_hist_1"=includeMarkdown(app_sys("app/www/helper_eda_hist_1.Rmd")),
                  "ag_box_1"=includeMarkdown(app_sys("app/www/helper_eda_box_1.Rmd")),
                  "ag_hist_1"=includeMarkdown(app_sys("app/www/helper_eda_hist_1.Rmd")),
-                 "ag_bar_1"=includeMarkdown(app_sys("app/www/helper_ag_bar_1.Rmd"))
+                 "ag_bar_1"=includeMarkdown(app_sys("app/www/helper_ag_bar_1.Rmd")),
+                 "an_volcano_1"=includeMarkdown(app_sys("app/www/helper_an_volcano_1.Rmd"))
           ),
           footer = modalButton("Close"),
           size="l",
@@ -769,6 +786,7 @@ mod_plot_server <- function(id,plot_type,r){
     })
 
     observe({
+      req(input$select_1)
       if(input$select_1=="with grouping"){
         shinyjs::hide("binfill")
         shinyjs::hide("barfill")
@@ -780,6 +798,7 @@ mod_plot_server <- function(id,plot_type,r){
 
     #### Alerts ----
     observeEvent(input$render | input$apply,{
+      req(input$select_1)
       if(plot_type=="eda_box_1" & !all(r$d1[,-1]>0,na.rm = T) & input$select_1=="log-transformed"){
       shinyalert(title = "There are zeros in the dataset!",
                  text = "Cannot logarithm the data, please choose another form of abundances - e.g. log2(x+1).",
@@ -790,15 +809,16 @@ mod_plot_server <- function(id,plot_type,r){
 
     #### Other stuff ----
     if(plot_type=="ag_box_1"){
-      shinyjs::hide("select_1")
+      shinyjs::hide("input_select_1")
     }
 
     observe({
       req(r$ngroups)
       if(r$ngroups>2 & plot_type=="an_volcano_1"){
-        shinyjs::hide("select_1")
-      }else{
-        shinyjs::show("select_1")
+        shinyjs::hide("input_select_1")
+      }
+      if(r$ngroups==2 & plot_type=="an_volcano_1"){
+        shinyjs::show("input_select_1")
       }
     })
 
