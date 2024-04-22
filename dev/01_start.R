@@ -20,8 +20,8 @@
 ##
 golem::fill_desc(
   pkg_name = "proteoME", # The Name of the package containing the App
-  pkg_title = "proteoME: tools for proteomics data preprocessing, imputation, normalization and analysis", # The Title of the package containing the App
-  pkg_description = "Package proteoME integrates several approaches for proteomics data analysis (including data preprocessing, missing values imputation or normalization) available as a shiny app to be used by everyone interested.", # The Description of the package containing the App
+  pkg_title = "proteoME: tools for proteomics data preprocessing, imputation and analysis", # The Title of the package containing the App
+  pkg_description = "Package proteoME integrates several approaches for proteomics data analysis (including data preprocessing or missing values imputation) available as a shiny app to be used by everyone interested.", # The Description of the package containing the App
   author_first_name = "Tomáš", # Your First Name
   author_last_name = "Chupáň", # Your Last Name
   author_email = "tomas.chupan@seznam.cz", # Your Email
