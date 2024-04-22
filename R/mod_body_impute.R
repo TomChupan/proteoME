@@ -121,10 +121,16 @@ mod_body_impute_server <- function(id,validate_message,
                                  row_split = if(clusterrowsTF){input$clusters}else{NULL},
                                  column_gap = unit(0.5,"cm"),
                                  row_gap = unit(0.35,"cm"))
+      if(sum(is.na(dTOplot_c()))>0){
       lgd2=ComplexHeatmap::Legend(at=1,labels="NA",title = "",
                                   legend_gp = gpar(fill = "grey"))
+      }
       suppressMessages(
+        if(sum(is.na(dTOplot_c()))>0){
         draw(ht, heatmap_legend_list = list(lgd2))
+        }else{
+        draw(ht)
+        }
       )
     })
     output$heat_c=renderPlot({
