@@ -61,6 +61,6 @@ LazyData: true
 RoxygenNote: 7.3.1
 Remotes:  
     bmbolstad/preprocessCore,
-    bioc::3.18/impute,
     jokergoo/ComplexHeatmap,
-    arianeschad/mbqn
+    arianeschad/mbqn,
+    gangwug/impute

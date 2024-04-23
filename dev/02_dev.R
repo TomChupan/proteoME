@@ -86,7 +86,7 @@ usethis::use_package("ggrepel")
 
 #Packages from GitHub:
 usethis::use_dev_package("preprocessCore",type = "Imports")
-usethis::use_dev_package("impute",type = "Imports",remote = "bioc::3.18/impute")
+usethis::use_dev_package("impute",type = "Imports",remote = "gangwug/impute")
 usethis::use_dev_package("ComplexHeatmap",type = "Imports")
 usethis::use_dev_package("MBQN",type = "Imports")
 
