@@ -72,14 +72,10 @@ usethis::use_package("magrittr")
 usethis::use_package("dplyr")
 usethis::use_package("data.table")
 usethis::use_package("DescTools")
-usethis::use_package("preprocessCore")
-usethis::use_package("MBQN")
-usethis::use_package("ComplexHeatmap")
 usethis::use_package("viridis")
 usethis::use_package("shinyscreenshot")
 usethis::use_package("naniar")
 usethis::use_package("grid")
-usethis::use_package("impute")
 usethis::use_package("missForest")
 usethis::use_package("stringr")
 usethis::use_package("ChemoSpec")
@@ -87,6 +83,12 @@ usethis::use_package("amap")
 usethis::use_package("shinyFeedback")
 usethis::use_package("rstatix")
 usethis::use_package("ggrepel")
+
+#Packages from GitHub:
+usethis::use_dev_package("preprocessCore",type = "Imports")
+usethis::use_dev_package("impute",type = "Imports",remote = "bioc::3.18/impute")
+usethis::use_dev_package("ComplexHeatmap",type = "Imports")
+usethis::use_dev_package("MBQN",type = "Imports")
 
 ## Check if you haven't missed anything:
 # This function will read all the scripts in the R/ folder and

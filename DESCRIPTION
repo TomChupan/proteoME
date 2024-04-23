@@ -1,6 +1,6 @@
 Package: proteoME
 Title: proteoME: tools for proteomics data preprocessing, imputation and analysis
-Version: 0.0.0.9000
+Version: 0.0.1
 Authors@R: person('Tomáš', 'Chupáň', email = 'tomas.chupan@seznam.cz', role = c('cre', 'aut'))
 Description: Package proteoME integrates several approaches for proteomics data analysis (including data preprocessing or missing values imputation) available as a shiny app to be used by everyone interested.
 License: GPL (>= 3)
@@ -11,7 +11,7 @@ Depends:
 Imports: 
     amap,
     colourpicker,
-    ComplexHeatmap,
+    ComplexHeatmap (>= 2.15.4),
     config (>= 0.3.1),
     data.table,
     DescTools,
@@ -24,14 +24,14 @@ Imports:
     grid,
     htmlwidgets,
     ChemoSpec,
-    impute,
+    impute (>= 1.74.1),
     magrittr,
     markdown,
-    MBQN,
+    MBQN (>= 2.14.0),
     missForest,
     naniar,
     plotly,
-    preprocessCore,
+    preprocessCore (>= 1.62.1),
     rstatix,
     shiny (>= 1.7.4.1),
     shinyalert,
@@ -59,3 +59,8 @@ Encoding: UTF-8
 Language: en-US
 LazyData: true
 RoxygenNote: 7.3.1
+Remotes:  
+    bmbolstad/preprocessCore,
+    bioc::3.18/impute,
+    jokergoo/ComplexHeatmap,
+    arianeschad/mbqn
