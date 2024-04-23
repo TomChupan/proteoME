@@ -61,6 +61,6 @@ LazyData: true
 RoxygenNote: 7.3.1
 Remotes:  
     bmbolstad/preprocessCore,
-    impute=bioc::3.18/impute,
+    impute=url::https://bioconductor.org/packages/release/bioc/src/contrib/impute_1.76.0.tar.gz,
     jokergoo/ComplexHeatmap,
     arianeschad/mbqn
