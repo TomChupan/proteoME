@@ -63,4 +63,4 @@ Remotes:
     preprocessCore=url::https://www.bioconductor.org/packages/release/bioc/src/contrib/preprocessCore_1.64.0.tar.gz,
     impute=url::https://bioconductor.org/packages/release/bioc/src/contrib/impute_1.76.0.tar.gz,
     jokergoo/ComplexHeatmap,
-    arianeschad/mbqn
+    MBQN=url::https://bioconductor.org/packages/release/bioc/src/contrib/MBQN_2.14.0.tar.gz
