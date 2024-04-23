@@ -65,7 +65,7 @@ This time there is a pair of boxplots in the app body (practically the same as t
 
 ## Aggregation
 
-Sidebar menu is devided into 2 parts: *Before the aggregation* and *Aggregation process*. You can check a couple of plots before you aggregate the data at the sample level (helper documents included - see the question mark icon). 
+Sidebar menu is divided into 2 parts: *Before the aggregation* and *Aggregation process*. You can check a couple of plots before you aggregate the data at the sample level (helper documents included - see the question mark icon). 
 
 ![Aggregation tab - 'Before the aggregation'](`r system.file("app/www/ag1.png", package = "proteoME")`){width=90%}
 

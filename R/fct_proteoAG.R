@@ -10,7 +10,7 @@
 #' @param method Aggregation method. You can choose between 'mean' and 'median'.
 #'
 #' @param percent A number between 1 and 100 that represents the minimum required percentage
-#' of quantified runs within a sample for aggregatation to take place for that
+#' of quantified runs within a sample for aggregation to take place for that
 #' sample (returns NA if not met).
 #'
 #'
