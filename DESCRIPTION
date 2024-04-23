@@ -60,7 +60,7 @@ Language: en-US
 LazyData: true
 RoxygenNote: 7.3.1
 Remotes:  
-    bmbolstad/preprocessCore,
+    preprocessCore=url::https://www.bioconductor.org/packages/release/bioc/src/contrib/preprocessCore_1.64.0.tar.gz,
     impute=url::https://bioconductor.org/packages/release/bioc/src/contrib/impute_1.76.0.tar.gz,
     jokergoo/ComplexHeatmap,
     arianeschad/mbqn
