@@ -1,0 +1,12 @@
+name: proteoME
+title: proteoME
+username: tomchupan
+account: tomchupan
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 11850036
+bundleId:
+url: https://tomchupan.shinyapps.io/proteoME/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
