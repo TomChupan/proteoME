@@ -322,10 +322,18 @@ mod_plot_server <- function(id,plot_type,r){
                }
              }, #eda_box_1 close
              "eda_hist_1"={
-               d=data.frame(detected=as.numeric(colSums(not_na(r$d1[-1]) &
-                                                          r$d1[-1]!=0)),
-                            runID=names(colSums(not_na(r$d1[-1]) &
-                                                  r$d1[-1]!=0))
+               req(not_null(r$trans_method))
+               if((r$transformedTF==TRUE & r$trans_method=="log2(x)")|r$normalizedTF==TRUE){
+                 det=as.numeric(colSums(not_na(r$d1[-1])))
+                 name_det=names(colSums(not_na(r$d1[-1])))
+               }else{
+                 det=as.numeric(colSums(not_na(r$d1[-1]) &
+                                          r$d1[-1]!=0))
+                 name_det=names(colSums(not_na(r$d1[-1]) &
+                                          r$d1[-1]!=0))
+               }
+               d=data.frame(detected=det,
+                            runID=name_det
                )
 
                d=merge(d,r$d2[,c(1:2)],by="runID")
@@ -340,10 +348,18 @@ mod_plot_server <- function(id,plot_type,r){
              }, #ag_box_1 close
              "ag_hist_1"={
                req(not_null(r$d4))
-               d=data.frame(detected=as.numeric(colSums(not_na(r$d4[-1]) &
-                                                          r$d4[-1]!=0)),
-                            sampleID=names(colSums(not_na(r$d4[-1]) &
-                                                  r$d4[-1]!=0))
+               req(not_null(r$trans_method))
+               if((r$transformedTF==TRUE & r$trans_method=="log2(x)")|r$normalizedTF==TRUE){
+                 det=as.numeric(colSums(not_na(r$d4[-1])))
+                 name_det=names(colSums(not_na(r$d4[-1])))
+               }else{
+                 det=as.numeric(colSums(not_na(r$d4[-1]) &
+                                          r$d4[-1]!=0))
+                 name_det=names(colSums(not_na(r$d4[-1]) &
+                                          r$d4[-1]!=0))
+               }
+               d=data.frame(detected=det,
+                            sampleID=name_det
                )
                d=merge(d,r$d3[,c(1:2)],by="sampleID")
                d

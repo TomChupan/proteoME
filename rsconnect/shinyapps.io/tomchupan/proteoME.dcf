@@ -5,7 +5,7 @@ account: tomchupan
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 11850036
-bundleId: 8535592
+bundleId: 8535626
 url: https://tomchupan.shinyapps.io/proteoME/
 version: 1
 asMultiple: FALSE
